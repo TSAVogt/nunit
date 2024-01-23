@@ -13,6 +13,7 @@ using System.Globalization;
 using System.Security;
 using NUnit.Framework.Internal.Abstractions;
 using NUnit.Framework.Internal.Extensions;
+using Testing.sdk;
 
 #if NETFRAMEWORK
 using System.Windows.Forms;
@@ -177,6 +178,7 @@ namespace NUnit.Framework.Api
         /// <returns>The test results from the run</returns>
         public ITestResult Run(ITestListener listener, ITestFilter filter)
         {
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks")) TestLog.Log("TestRunStarted");
             RunAsync(listener, filter);
             WaitForCompletion(Timeout.Infinite);
             return Result!;
