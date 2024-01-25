@@ -9,6 +9,7 @@ using NUnit.Framework.Internal.Abstractions;
 using NUnit.Framework.Internal.Builders;
 using NUnit.Framework.Internal.Commands;
 using NUnit.Framework.Internal.Extensions;
+using Testing.sdk;
 
 namespace NUnit.Framework.Internal.Execution
 {
@@ -46,6 +47,11 @@ namespace NUnit.Framework.Internal.Execution
 
                 // Isolate the Execute call because the WorkItemComplete below will run one-time teardowns. Execution
                 // context values should not flow from a particular test case into the shared one-time teardown.
+
+                // Todo: check
+                //if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                //    TestLog.Log("BeforeSetUps");
+
                 Result = ContextUtils.DoIsolated(() => testCommand.Execute(Context));
             }
             catch (Exception ex)
@@ -67,6 +73,10 @@ namespace NUnit.Framework.Internal.Execution
             finally
             {
                 WorkItemComplete();
+                // Todo: check
+                //if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                //    TestLog.Log("AfterTearDowns");
+
             }
         }
 
