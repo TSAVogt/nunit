@@ -10,6 +10,7 @@ namespace NUnit.Framework.Internal.Execution
 {
     using Commands;
     using NUnit.Framework.Internal.Extensions;
+    using Testing.sdk;
 
     /// <summary>
     /// A WorkItem may be an individual test case, a fixture or
@@ -489,8 +490,14 @@ namespace NUnit.Framework.Internal.Execution
             Context.EstablishExecutionEnvironment();
 
             State = WorkItemState.Running;
-
+            
+            // Todo: check
+            //if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+            //    TestLog.Log("BeforeSetUps(WI)");
             PerformWork();
+            // Todo: check
+            //if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+            //    TestLog.Log("AfterTearDowns(WI)");
         }
 
         private ParallelExecutionStrategy GetExecutionStrategy()
