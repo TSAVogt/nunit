@@ -4,6 +4,7 @@ using System;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal.Builders;
 using NUnit.Framework.Internal.Extensions;
+using static Testing.sdk.TestLog;
 
 namespace NUnit.Framework.Internal.Commands
 {
@@ -82,7 +83,20 @@ namespace NUnit.Framework.Internal.Commands
                 arguments[_arguments.Length] = context.CancellationToken;
             }
 
-            return _testMethod.Method.Invoke(context.TestObject, arguments);
+            object returnObject;
+            try
+            {
+                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                    Log("BeforeTestCase");
+                returnObject = _testMethod.Method.Invoke(context.TestObject, arguments);
+            }
+            finally
+            {
+                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks")) 
+                    Log("AfterTestCase");
+            }
+
+            return returnObject;
         }
     }
 }
