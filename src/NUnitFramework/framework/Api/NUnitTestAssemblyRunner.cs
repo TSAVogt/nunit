@@ -178,10 +178,12 @@ namespace NUnit.Framework.Api
         /// <returns>The test results from the run</returns>
         public ITestResult Run(ITestListener listener, ITestFilter filter)
         {
-            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks")) TestLog.Log("TestRunStarted");
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks")) 
+                TestLog.Log("TestRunStarted");
             RunAsync(listener, filter);
             WaitForCompletion(Timeout.Infinite);
-            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks")) TestLog.Log("TestRunFinished");
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                TestLog.Log("TestRunFinished");
             return Result!;
         }
 
