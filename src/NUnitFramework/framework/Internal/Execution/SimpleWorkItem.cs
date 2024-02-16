@@ -49,8 +49,8 @@ namespace NUnit.Framework.Internal.Execution
                 // context values should not flow from a particular test case into the shared one-time teardown.
 
                 // Todo: check
-                //if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                //    TestLog.Log("BeforeSetUps");
+                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                    TestLog.Log("BeforeSetUps");
 
                 Result = ContextUtils.DoIsolated(() => testCommand.Execute(Context));
             }
@@ -74,8 +74,8 @@ namespace NUnit.Framework.Internal.Execution
             {
                 WorkItemComplete();
                 // Todo: check
-                //if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                //    TestLog.Log("AfterTearDowns");
+                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                    TestLog.Log("AfterTearDowns");
 
             }
         }

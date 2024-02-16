@@ -74,6 +74,7 @@ namespace NUnit.Framework.Internal.Execution
 
                             if (Children.Count > 0)
                             {
+                                // TODO: check for right entry points here!
                                 InitializeSetUpAndTearDownCommands();
 
                                 PerformOneTimeSetUp();
