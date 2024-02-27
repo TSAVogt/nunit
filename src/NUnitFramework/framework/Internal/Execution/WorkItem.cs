@@ -491,11 +491,7 @@ namespace NUnit.Framework.Internal.Execution
 
             State = WorkItemState.Running;
 
-            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                TestLog.Log("BeforeSetUps(WI)");
             PerformWork();
-            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                TestLog.Log("AfterTearDowns(WI)");
         }
 
         private ParallelExecutionStrategy GetExecutionStrategy()

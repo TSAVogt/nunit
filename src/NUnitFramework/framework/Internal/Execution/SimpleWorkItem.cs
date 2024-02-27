@@ -47,11 +47,6 @@ namespace NUnit.Framework.Internal.Execution
 
                 // Isolate the Execute call because the WorkItemComplete below will run one-time teardowns. Execution
                 // context values should not flow from a particular test case into the shared one-time teardown.
-
-                // Todo: check
-                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                    TestLog.Log("BeforeSetUps");
-
                 Result = ContextUtils.DoIsolated(() => testCommand.Execute(Context));
             }
             catch (Exception ex)
@@ -73,10 +68,6 @@ namespace NUnit.Framework.Internal.Execution
             finally
             {
                 WorkItemComplete();
-                // Todo: check
-                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                    TestLog.Log("AfterTearDowns");
-
             }
         }
 
