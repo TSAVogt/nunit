@@ -1,6 +1,7 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
 using System;
+using Testing.sdk;
 
 namespace NUnit.Framework.Internal.Commands
 {
@@ -33,7 +34,18 @@ namespace NUnit.Framework.Internal.Commands
 
             RunTestMethodInThreadAbortSafeZone(context, () =>
             {
-                BeforeTest(context);
+
+                try
+                {
+                    if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                        TestLog.Log($"BeforeSetUp");
+                    BeforeTest(context);
+                }
+                finally
+                {
+                    if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                        TestLog.Log($"AfterSetup");
+                }
                 context.CurrentResult = innerCommand.Execute(context);
             });
 
