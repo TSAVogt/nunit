@@ -44,14 +44,27 @@ namespace NUnit.Framework.Internal.Commands
                 finally
                 {
                     if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                        TestLog.Log($"AfterSetup");
+                        TestLog.Log($"AfterSetUp");
                 }
                 context.CurrentResult = innerCommand.Execute(context);
             });
 
             if (context.ExecutionStatus != TestExecutionStatus.AbortRequested)
             {
-                RunTestMethodInThreadAbortSafeZone(context, () => AfterTest(context));
+                RunTestMethodInThreadAbortSafeZone(context, () =>
+                {
+                    try
+                    {
+                        if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                            TestLog.Log($"BeforeTearDown");
+                        AfterTest(context); ;
+                    }
+                    finally
+                    {
+                        if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                            TestLog.Log($"AfterTearDown");
+                    }
+                });
             }
 
             return context.CurrentResult;
