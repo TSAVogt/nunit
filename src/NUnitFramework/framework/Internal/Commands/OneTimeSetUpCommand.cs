@@ -1,5 +1,7 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
+using Testing.sdk;
+
 namespace NUnit.Framework.Internal.Commands
 {
     /// <summary>
@@ -21,7 +23,17 @@ namespace NUnit.Framework.Internal.Commands
 
             BeforeTest = context =>
             {
-                setUpTearDown.RunSetUp(context);
+                try
+                {
+                    if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                        TestLog.Log($"BeforeOneTimeSetUp");
+                    setUpTearDown.RunSetUp(context);
+                }
+                finally
+                {
+                    if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                        TestLog.Log($"AfterOneTimeSetUp");
+                }
             };
         }
     }
