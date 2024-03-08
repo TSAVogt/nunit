@@ -38,13 +38,13 @@ namespace NUnit.Framework.Internal.Commands
                 try
                 {
                     if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                        TestLog.Log($"BeforeSetUp");
+                        TestLog.Log($"- BeforeSetUp");
                     BeforeTest(context);
                 }
                 finally
                 {
                     if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                        TestLog.Log($"AfterSetUp");
+                        TestLog.Log($"- AfterSetUp");
                 }
                 context.CurrentResult = innerCommand.Execute(context);
             });
@@ -56,13 +56,13 @@ namespace NUnit.Framework.Internal.Commands
                     try
                     {
                         if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                            TestLog.Log($"BeforeTearDown");
+                            TestLog.Log($"- BeforeTearDown");
                         AfterTest(context); ;
                     }
                     finally
                     {
                         if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                            TestLog.Log($"AfterTearDown");
+                            TestLog.Log($"- AfterTearDown");
                     }
                 });
             }

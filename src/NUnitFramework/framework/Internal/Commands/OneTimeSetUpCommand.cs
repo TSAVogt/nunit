@@ -26,13 +26,13 @@ namespace NUnit.Framework.Internal.Commands
                 try
                 {
                     if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                        TestLog.Log($"BeforeOneTimeSetUp");
+                        TestLog.Log($"- BeforeOneTimeSetUp");
                     setUpTearDown.RunSetUp(context);
                 }
                 finally
                 {
                     if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                        TestLog.Log($"AfterOneTimeSetUp");
+                        TestLog.Log($"- AfterOneTimeSetUp");
                 }
             };
         }
