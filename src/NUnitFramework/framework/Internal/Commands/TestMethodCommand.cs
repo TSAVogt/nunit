@@ -88,13 +88,13 @@ namespace NUnit.Framework.Internal.Commands
             {
                 // TODO: check how to handle parameters
                 if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                    Log($"BeforeTestCase({_testMethod.MethodName})");
+                    Log($"- BeforeTestCase({_testMethod.MethodName})");
                 returnObject = _testMethod.Method.Invoke(context.TestObject, arguments);
             }
             finally
             {
                 if (TestContext.Parameters.Names.Contains("RuntimeCallbacks")) 
-                    Log($"AfterTestCase({_testMethod.MethodName})");
+                    Log($"- AfterTestCase({_testMethod.MethodName})");
             }
 
             return returnObject;
