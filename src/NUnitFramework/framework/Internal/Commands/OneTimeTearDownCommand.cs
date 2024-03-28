@@ -29,17 +29,7 @@ namespace NUnit.Framework.Internal.Commands
 
                 try
                 {
-                    try
-                    {
-                        if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                            TestLog.Log($"- BeforeOneTimeTearDown");
-                        setUpTearDownItem.RunTearDown(context);
-                    }
-                    finally
-                    {
-                        if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                            TestLog.Log($"- AfterOneTimeTearDown");
-                    }
+                    setUpTearDownItem.RunTearDown(context);
                 }
                 catch (Exception ex)
                 {

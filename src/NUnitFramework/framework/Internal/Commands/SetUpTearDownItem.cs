@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal.Builders;
 using NUnit.Framework.Internal.Execution;
+using Testing.sdk;
 
 namespace NUnit.Framework.Internal.Commands
 {
@@ -41,6 +42,13 @@ namespace NUnit.Framework.Internal.Commands
         /// </summary>
         public bool HasMethods => _setUpMethods.Count > 0 || _tearDownMethods.Count > 0;
 
+        /// <summary/>
+        public bool SuppressCallback
+        {
+            get;
+            set;
+        } = false;
+
         /// <summary>
         /// Run SetUp on this level.
         /// </summary>
@@ -50,7 +58,19 @@ namespace NUnit.Framework.Internal.Commands
             _setUpWasRun = true;
 
             foreach (IMethodInfo setUpMethod in _setUpMethods)
-                RunSetUpOrTearDownMethod(context, setUpMethod);
+            {
+                try
+                {
+                    if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                        TestLog.Log($"- BeforeOneTimeSetUp({setUpMethod.Name})");
+                    RunSetUpOrTearDownMethod(context, setUpMethod);
+                }
+                finally
+                {
+                    if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                        TestLog.Log($"- AfterOneTimeSetUp({setUpMethod.Name})");
+                }
+            }
         }
 
         /// <summary>
@@ -72,7 +92,20 @@ namespace NUnit.Framework.Internal.Commands
                     // run the teardowns in reverse order to provide consistency.
                     var index = _tearDownMethods.Count;
                     while (--index >= 0)
-                        RunSetUpOrTearDownMethod(context, _tearDownMethods[index]);
+                    {
+                        try
+                        {
+                            if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                                TestLog.Log($"- BeforeOneTimeTearDown({_tearDownMethods[index]})");
+                            RunSetUpOrTearDownMethod(context, _tearDownMethods[index]);
+                        }
+                        finally
+                        {
+                            if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                                TestLog.Log($"- AfterOneTimeTearDown({_tearDownMethods[index]})");
+                        }
+
+                    }
 
                     // If there are new assertion results here, they are warnings issued
                     // in teardown. Redo test completion so they are listed properly.
