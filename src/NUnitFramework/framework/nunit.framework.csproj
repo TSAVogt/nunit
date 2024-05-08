@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(NUnitLibraryFrameworks)</TargetFrameworks>
+    <TargetFrameworks>.net6</TargetFrameworks>
     <RootNamespace>NUnit.Framework</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsTestProject>false</IsTestProject>
@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Memory" />
+    <ProjectReference Include="..\..\..\..\TestLog.sdk\TestLog.sdk.csproj" />
   </ItemGroup>
 
   <ItemGroup>

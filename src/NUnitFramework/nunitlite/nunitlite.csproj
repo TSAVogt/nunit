@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>$(NUnitLibraryFrameworks)</TargetFrameworks>
+    <TargetFrameworks>.net6</TargetFrameworks>
     <RootNamespace>NUnitLite</RootNamespace>
     <Nullable>disable</Nullable>
   </PropertyGroup>
