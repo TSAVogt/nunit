@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using NUnit.Framework.Interfaces;
-using Testing.sdk;
 
 namespace NUnit.Framework.Internal.Execution
 {

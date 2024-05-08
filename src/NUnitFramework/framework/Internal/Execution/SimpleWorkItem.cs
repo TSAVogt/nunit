@@ -9,7 +9,6 @@ using NUnit.Framework.Internal.Abstractions;
 using NUnit.Framework.Internal.Builders;
 using NUnit.Framework.Internal.Commands;
 using NUnit.Framework.Internal.Extensions;
-using Testing.sdk;
 
 namespace NUnit.Framework.Internal.Execution
 {
