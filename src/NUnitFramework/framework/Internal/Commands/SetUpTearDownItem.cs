@@ -61,14 +61,27 @@ namespace NUnit.Framework.Internal.Commands
             {
                 try
                 {
-                    if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                        TestLog.Log($"- BeforeOneTimeSetUp({setUpMethod.Name})");
+                    TriggerOneTimeSetupHook(context, setUpMethod);
                     RunSetUpOrTearDownMethod(context, setUpMethod);
                 }
                 finally
                 {
                     if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
                         TestLog.Log($"- AfterOneTimeSetUp({setUpMethod.Name})");
+                }
+            }
+        }
+
+        private void TriggerOneTimeSetupHook(TestExecutionContext context, IMethodInfo setUpMethod)
+        {
+            if (context.CurrentTest is not null && context.CurrentTest.IsSuite)
+            {
+                if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                {
+                    foreach (var hook in context.Hooks)
+                    {
+                        hook.OneTimeSetUp(setUpMethod.Name);
+                    }
                 }
             }
         }

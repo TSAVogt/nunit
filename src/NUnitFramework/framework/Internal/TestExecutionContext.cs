@@ -12,6 +12,7 @@ using NUnit.Framework.Constraints;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal.Execution;
 using System.Diagnostics.CodeAnalysis;
+using Testing.sdk;
 
 #if NETFRAMEWORK
 using System.Runtime.Remoting.Messaging;
@@ -264,6 +265,8 @@ namespace NUnit.Framework.Internal
             get => _listener;
             set => _listener = value;
         }
+
+        public List<IHooks> Hooks => new List<IHooks>() {new LoggerHook()};
 
         /// <summary>
         /// The current WorkItemDispatcher. Made public for
@@ -536,5 +539,19 @@ namespace NUnit.Framework.Internal
         }
 
         #endregion
+    }
+
+    // TODO: move to right namespace
+    public interface IHooks
+    {
+        void OneTimeSetUp(string methodName);
+    }
+
+    class LoggerHook : IHooks
+    {
+        public void OneTimeSetUp(string methodName)
+        {
+            TestLog.Log($"- BeforeOneTimeSetUp({methodName})");
+        }
     }
 }
