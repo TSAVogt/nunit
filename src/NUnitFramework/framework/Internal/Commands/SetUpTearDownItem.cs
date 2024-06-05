@@ -83,7 +83,7 @@ namespace NUnit.Framework.Internal.Commands
                         hook.OneTimeSetUp(setUpMethod.Name);
                     }
                 }
-            }
+            } // else if !IsSuite => setup case!
         }
 
         /// <summary>

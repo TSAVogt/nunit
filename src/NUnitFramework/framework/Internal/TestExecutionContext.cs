@@ -12,7 +12,6 @@ using NUnit.Framework.Constraints;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal.Execution;
 using System.Diagnostics.CodeAnalysis;
-using Testing.sdk;
 
 #if NETFRAMEWORK
 using System.Runtime.Remoting.Messaging;
@@ -84,6 +83,7 @@ namespace NUnit.Framework.Internal
         public TestExecutionContext()
         {
             _priorContext = null;
+            Hooks = new List<IHooks>();
             TestCaseTimeout = 0;
             UpstreamActions = new List<ITestAction>();
 
@@ -103,6 +103,7 @@ namespace NUnit.Framework.Internal
             _priorContext = other;
 
             CurrentTest = other.CurrentTest;
+            Hooks = new List<IHooks>(other.Hooks);
 
             CurrentResult = other.CurrentResult;
             TestObject = other.TestObject;
@@ -266,7 +267,11 @@ namespace NUnit.Framework.Internal
             set => _listener = value;
         }
 
-        public List<IHooks> Hooks => new List<IHooks>() {new LoggerHook()};
+        public List<IHooks> Hooks
+        {
+            get;
+            set; 
+        }
 
         /// <summary>
         /// The current WorkItemDispatcher. Made public for
@@ -547,11 +552,4 @@ namespace NUnit.Framework.Internal
         void OneTimeSetUp(string methodName);
     }
 
-    class LoggerHook : IHooks
-    {
-        public void OneTimeSetUp(string methodName)
-        {
-            TestLog.Log($"- BeforeOneTimeSetUp({methodName})");
-        }
-    }
 }
