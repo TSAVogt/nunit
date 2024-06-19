@@ -37,8 +37,6 @@ namespace NUnit.Framework.Internal.Commands
 
                 try
                 {
-                    if (TestContext.Parameters.Names.Contains("RuntimeCallbacks")) // TODO: move to onetimesetup
-                        TestLog.Log($"- BeforeSetUp");
                     BeforeTest(context);
                 }
                 finally

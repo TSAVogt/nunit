@@ -20,8 +20,6 @@ namespace NUnit.Framework.Internal.Commands
             Guard.OperationValid(Test.TypeInfo is not null, "TestMethod must have a non-null TypeInfo");
             Guard.ArgumentNotNull(setUpTearDown, nameof(setUpTearDown));
 
-            setUpTearDown.SuppressCallback = true;
-
             BeforeTest = setUpTearDown.RunSetUp;
 
             AfterTest = setUpTearDown.RunTearDown;

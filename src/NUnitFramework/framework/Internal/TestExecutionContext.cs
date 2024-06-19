@@ -549,7 +549,9 @@ namespace NUnit.Framework.Internal
     // TODO: move to right namespace
     public interface IHooks
     {
-        void OneTimeSetUp(string methodName);
+        void BeforeOneTimeSetUp(string methodName);
+        void AfterOneTimeSetUp(string methodName);
+        void BeforeSetUp(string methodName);
     }
 
 }

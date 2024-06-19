@@ -42,13 +42,6 @@ namespace NUnit.Framework.Internal.Commands
         /// </summary>
         public bool HasMethods => _setUpMethods.Count > 0 || _tearDownMethods.Count > 0;
 
-        /// <summary/>
-        public bool SuppressCallback
-        {
-            get;
-            set;
-        } = false;
-
         /// <summary>
         /// Run SetUp on this level.
         /// </summary>
@@ -61,26 +54,55 @@ namespace NUnit.Framework.Internal.Commands
             {
                 try
                 {
-                    TriggerOneTimeSetupHook(context, setUpMethod);
+                    TriggerBeforeOneTimeSetupHooks(context, setUpMethod);
                     RunSetUpOrTearDownMethod(context, setUpMethod);
                 }
                 finally
                 {
-                    if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                        TestLog.Log($"- AfterOneTimeSetUp({setUpMethod.Name})");
+                    if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                    {
+                        TriggerAfterOneTimeSetUpHooks(context, setUpMethod);
+                    }
                 }
             }
         }
 
-        private void TriggerOneTimeSetupHook(TestExecutionContext context, IMethodInfo setUpMethod)
+        private void TriggerBeforeOneTimeSetupHooks(TestExecutionContext context, IMethodInfo setUpMethod)
+        {
+            // TODO: Check exception handling
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            // TODO: suppressCallback needs to be removed!
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+            {
+                foreach (var hook in context.Hooks)
+                {
+                    if (context.CurrentTest.IsSuite) // if !IsSuite => SetUp case!
+                    {
+                        hook.BeforeOneTimeSetUp(setUpMethod.Name);
+                    }
+                    else
+                    {
+                        hook.BeforeSetUp(setUpMethod.Name);
+                    }
+                }
+            }
+        }
+
+        private void TriggerAfterOneTimeSetUpHooks(TestExecutionContext context, IMethodInfo setUpMethod)
         {
             if (context.CurrentTest is not null && context.CurrentTest.IsSuite)
             {
-                if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
                 {
+                    // TODO: revert list
+                    // TODO: prove Stefan!
                     foreach (var hook in context.Hooks)
                     {
-                        hook.OneTimeSetUp(setUpMethod.Name);
+                        hook.AfterOneTimeSetUp(setUpMethod.Name);
                     }
                 }
             } // else if !IsSuite => setup case!
@@ -108,13 +130,13 @@ namespace NUnit.Framework.Internal.Commands
                     {
                         try
                         {
-                            if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks") && context.CurrentTest.IsSuite)
                                 TestLog.Log($"- BeforeOneTimeTearDown({_tearDownMethods[index]})");
                             RunSetUpOrTearDownMethod(context, _tearDownMethods[index]);
                         }
                         finally
                         {
-                            if (!SuppressCallback && TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks") && context.CurrentTest.IsSuite)
                                 TestLog.Log($"- AfterOneTimeTearDown({_tearDownMethods[index]})");
                         }
 
