@@ -76,7 +76,6 @@ namespace NUnit.Framework.Internal.Commands
                 return;
             }
 
-            // TODO: suppressCallback needs to be removed!
             if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
             {
                 foreach (var hook in context.Hooks)
@@ -139,8 +138,7 @@ namespace NUnit.Framework.Internal.Commands
                     {
                         try
                         {
-                            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks") && context.CurrentTest.IsSuite)
-                                TestLog.Log($"- BeforeOneTimeTearDown({_tearDownMethods[index]})");
+                            TriggerBeforeTearDownsHooks(context, _tearDownMethods[index]);
                             RunSetUpOrTearDownMethod(context, _tearDownMethods[index]);
                         }
                         finally
@@ -162,6 +160,30 @@ namespace NUnit.Framework.Internal.Commands
                 }
             }
         }
+
+        private void TriggerBeforeTearDownsHooks(TestExecutionContext context, IMethodInfo tearDownMethod)
+        {
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+            {
+                foreach (var hook in context.Hooks)
+                {
+                    if (context.CurrentTest.IsSuite) // if !IsSuite => SetUp case!
+                    {
+                        hook.BeforeOneTimeTearDown(tearDownMethod.Name);
+                    }
+                    else
+                    {
+                        //hook.BeforeSetUp(tearDownMethod.Name);
+                    }
+                }
+            }
+        }
+
 
         private void RunSetUpOrTearDownMethod(TestExecutionContext context, IMethodInfo method)
         {
