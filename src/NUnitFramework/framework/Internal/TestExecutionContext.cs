@@ -267,7 +267,7 @@ namespace NUnit.Framework.Internal
             set => _listener = value;
         }
 
-        public List<IHooks> Hooks
+        public IList<IHooks> Hooks
         {
             get;
             set; 

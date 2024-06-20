@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal.Builders;
 using NUnit.Framework.Internal.Execution;
@@ -101,9 +102,8 @@ namespace NUnit.Framework.Internal.Commands
 
             if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
             {
-                // TODO: revert list
-                // TODO: prove Stefan!
-                foreach (var hook in context.Hooks)
+                // TODO: prove Stefan with reverse!
+                foreach (var hook in context.Hooks.Reverse())
                 {
                     if (context.CurrentTest.IsSuite)
                     {
