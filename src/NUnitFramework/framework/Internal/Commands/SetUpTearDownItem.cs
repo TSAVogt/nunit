@@ -94,18 +94,27 @@ namespace NUnit.Framework.Internal.Commands
 
         private void TriggerAfterOneTimeSetUpHooks(TestExecutionContext context, IMethodInfo setUpMethod)
         {
-            if (context.CurrentTest is not null && context.CurrentTest.IsSuite)
+            if (context.CurrentTest is null)
             {
-                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+                return;
+            }
+
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+            {
+                // TODO: revert list
+                // TODO: prove Stefan!
+                foreach (var hook in context.Hooks)
                 {
-                    // TODO: revert list
-                    // TODO: prove Stefan!
-                    foreach (var hook in context.Hooks)
+                    if (context.CurrentTest.IsSuite)
                     {
                         hook.AfterOneTimeSetUp(setUpMethod.Name);
                     }
+                    else
+                    {
+                        hook.AfterSetUp(setUpMethod.Name);
+                    }
                 }
-            } // else if !IsSuite => setup case!
+            }
         }
 
         /// <summary>

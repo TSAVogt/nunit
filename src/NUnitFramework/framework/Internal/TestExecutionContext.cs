@@ -552,6 +552,7 @@ namespace NUnit.Framework.Internal
         void BeforeOneTimeSetUp(string methodName);
         void AfterOneTimeSetUp(string methodName);
         void BeforeSetUp(string methodName);
+        void AfterSetUp(string methodName);
     }
 
 }

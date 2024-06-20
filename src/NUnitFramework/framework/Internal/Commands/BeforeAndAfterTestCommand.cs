@@ -35,15 +35,7 @@ namespace NUnit.Framework.Internal.Commands
             RunTestMethodInThreadAbortSafeZone(context, () =>
             {
 
-                try
-                {
-                    BeforeTest(context);
-                }
-                finally
-                {
-                    if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                        TestLog.Log($"- AfterSetUp");
-                }
+                BeforeTest(context);
                 context.CurrentResult = innerCommand.Execute(context);
             });
 
