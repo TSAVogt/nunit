@@ -45,8 +45,6 @@ namespace NUnit.Framework.Internal.Commands
                 {
                     try
                     {
-                        if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                            TestLog.Log($"- BeforeTearDown");
                         AfterTest(context);
                     }
                     finally

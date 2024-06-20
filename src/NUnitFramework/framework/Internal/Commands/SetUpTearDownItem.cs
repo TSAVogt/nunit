@@ -178,7 +178,7 @@ namespace NUnit.Framework.Internal.Commands
                     }
                     else
                     {
-                        //hook.BeforeSetUp(tearDownMethod.Name);
+                        hook.BeforeTearDown(tearDownMethod.Name);
                     }
                 }
             }
