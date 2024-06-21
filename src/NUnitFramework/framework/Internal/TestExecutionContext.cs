@@ -557,6 +557,7 @@ namespace NUnit.Framework.Internal
         void BeforeTearDown(string methodName);
         void AfterOneTimeTearDown(string methodName);
         void AfterTearDown(string methodName);
+        void BeforeTest(string testMethodName);
     }
 
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
 using System;
+using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal.Builders;
 using NUnit.Framework.Internal.Extensions;
@@ -87,8 +88,7 @@ namespace NUnit.Framework.Internal.Commands
             try
             {
                 // TODO: check how to handle parameters
-                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                    Log($"- BeforeTestCase({_testMethod.MethodName})");
+                TriggerBeforeTestHook(context);
                 returnObject = _testMethod.Method.Invoke(context.TestObject, arguments);
             }
             finally
@@ -98,6 +98,23 @@ namespace NUnit.Framework.Internal.Commands
             }
 
             return returnObject;
+        }
+
+        private void TriggerBeforeTestHook(TestExecutionContext context)
+        {
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+            {
+                foreach (var hook in context.Hooks)
+                {
+                    //if (context.CurrentTest.IsSuite) Do we need that for TestCaseSource, ...?
+                    hook.BeforeTest(_testMethod.MethodName);
+                }
+            }
         }
     }
 }
