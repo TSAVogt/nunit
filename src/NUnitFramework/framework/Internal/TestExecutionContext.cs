@@ -555,6 +555,8 @@ namespace NUnit.Framework.Internal
         void AfterSetUp(string methodName);
         void BeforeOneTimeTearDown(string methodName);
         void BeforeTearDown(string methodName);
+        void AfterOneTimeTearDown(string methodName);
+        void AfterTearDown(string methodName);
     }
 
 }

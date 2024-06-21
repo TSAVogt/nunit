@@ -43,15 +43,7 @@ namespace NUnit.Framework.Internal.Commands
             {
                 RunTestMethodInThreadAbortSafeZone(context, () =>
                 {
-                    try
-                    {
-                        AfterTest(context);
-                    }
-                    finally
-                    {
-                        if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
-                            TestLog.Log($"- AfterTearDown");
-                    }
+                    AfterTest(context);
                 });
             }
 

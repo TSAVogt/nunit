@@ -55,20 +55,20 @@ namespace NUnit.Framework.Internal.Commands
             {
                 try
                 {
-                    TriggerBeforeOneTimeSetupHooks(context, setUpMethod);
+                    TriggerBeforeSetupsHooks(context, setUpMethod);
                     RunSetUpOrTearDownMethod(context, setUpMethod);
                 }
                 finally
                 {
                     if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
                     {
-                        TriggerAfterOneTimeSetUpHooks(context, setUpMethod);
+                        TriggerAfterSetUpsHooks(context, setUpMethod);
                     }
                 }
             }
         }
 
-        private void TriggerBeforeOneTimeSetupHooks(TestExecutionContext context, IMethodInfo setUpMethod)
+        private void TriggerBeforeSetupsHooks(TestExecutionContext context, IMethodInfo setUpMethod)
         {
             // TODO: Check exception handling
             if (context.CurrentTest is null)
@@ -92,7 +92,7 @@ namespace NUnit.Framework.Internal.Commands
             }
         }
 
-        private void TriggerAfterOneTimeSetUpHooks(TestExecutionContext context, IMethodInfo setUpMethod)
+        private void TriggerAfterSetUpsHooks(TestExecutionContext context, IMethodInfo setUpMethod)
         {
             if (context.CurrentTest is null)
             {
@@ -143,8 +143,7 @@ namespace NUnit.Framework.Internal.Commands
                         }
                         finally
                         {
-                            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks") && context.CurrentTest.IsSuite)
-                                TestLog.Log($"- AfterOneTimeTearDown({_tearDownMethods[index]})");
+                            TriggerAfterTearDownsHooks(context, _tearDownMethods[index]);
                         }
 
                     }
@@ -179,6 +178,30 @@ namespace NUnit.Framework.Internal.Commands
                     else
                     {
                         hook.BeforeTearDown(tearDownMethod.Name);
+                    }
+                }
+            }
+        }
+
+        private void TriggerAfterTearDownsHooks(TestExecutionContext context, IMethodInfo tearDownMethod)
+        {
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+            {
+                // TODO: prove Stefan with reverse!
+                foreach (var hook in context.Hooks.Reverse())
+                {
+                    if (context.CurrentTest.IsSuite)
+                    {
+                        hook.AfterOneTimeTearDown(tearDownMethod.Name);
+                    }
+                    else
+                    {
+                        hook.AfterTearDown(tearDownMethod.Name);
                     }
                 }
             }
