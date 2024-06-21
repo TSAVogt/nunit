@@ -93,8 +93,7 @@ namespace NUnit.Framework.Internal.Commands
             }
             finally
             {
-                if (TestContext.Parameters.Names.Contains("RuntimeCallbacks")) 
-                    Log($"- AfterTestCase({_testMethod.MethodName})");
+                TriggerAferTestHook(context);
             }
 
             return returnObject;
@@ -116,5 +115,23 @@ namespace NUnit.Framework.Internal.Commands
                 }
             }
         }
+
+        private void TriggerAferTestHook(TestExecutionContext context)
+        {
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
+            {
+                foreach (var hook in context.Hooks)
+                {
+                    //if (context.CurrentTest.IsSuite) Do we need that for TestCaseSource, ...?
+                    hook.AfterTest(_testMethod.MethodName);
+                }
+            }
+        }
+
     }
 }
