@@ -85,6 +85,7 @@ namespace NUnit.Framework.Internal
             _priorContext = null;
             TestCaseTimeout = 0;
             UpstreamActions = new List<ITestAction>();
+            Hooks = new List<IHooks>();
 
             UpdateContextFromEnvironment();
 
@@ -102,6 +103,7 @@ namespace NUnit.Framework.Internal
             _priorContext = other;
 
             CurrentTest = other.CurrentTest;
+            Hooks = new List<IHooks>(other.Hooks);
 
             CurrentResult = other.CurrentResult;
             TestObject = other.TestObject;
@@ -391,6 +393,15 @@ namespace NUnit.Framework.Internal
         /// Currently only being executed in a test using the <see cref="RetryAttribute"/>
         /// </summary>
         public int CurrentRepeatCount { get; set; }
+
+        /// <summary>
+        /// Hook Extensions
+        /// </summary>
+        public List<IHooks> Hooks
+        {
+            get;
+            set;
+        }
 
         #endregion
 
