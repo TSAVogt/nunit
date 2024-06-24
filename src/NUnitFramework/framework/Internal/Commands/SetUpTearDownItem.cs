@@ -124,7 +124,15 @@ namespace NUnit.Framework.Internal.Commands
                     // run the teardowns in reverse order to provide consistency.
                     var index = _tearDownMethods.Count;
                     while (--index >= 0)
-                        RunSetUpOrTearDownMethod(context, _tearDownMethods[index]);
+                        try
+                        {
+                            TriggerBeforeTearDownsHooks(context, _tearDownMethods[index]);
+                            RunSetUpOrTearDownMethod(context, _tearDownMethods[index]);
+                        }
+                        finally
+                        {
+                            TriggerAfterTearDownsHooks(context, _tearDownMethods[index]);
+                        }
 
                     // If there are new assertion results here, they are warnings issued
                     // in teardown. Redo test completion so they are listed properly.
@@ -155,5 +163,46 @@ namespace NUnit.Framework.Internal.Commands
         {
             return method.Invoke(method.IsStatic ? null : context.TestObject, null)!;
         }
+
+        private void TriggerBeforeTearDownsHooks(TestExecutionContext context, IMethodInfo tearDownMethod)
+        {
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            foreach (var hook in context.Hooks)
+            {
+                if (context.CurrentTest.IsSuite) // if !IsSuite => SetUp case!
+                {
+                    hook.BeforeOneTimeTearDown(tearDownMethod.Name);
+                }
+                else
+                {
+                    hook.BeforeTearDown(tearDownMethod.Name);
+                }
+            }
+        }
+
+        private void TriggerAfterTearDownsHooks(TestExecutionContext context, IMethodInfo tearDownMethod)
+        {
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            foreach (var hook in context.Hooks.Reverse())
+            {
+                if (context.CurrentTest.IsSuite)
+                {
+                    hook.AfterOneTimeTearDown(tearDownMethod.Name);
+                }
+                else
+                {
+                    hook.AfterTearDown(tearDownMethod.Name);
+                }
+            }
+        }
+
     }
 }
