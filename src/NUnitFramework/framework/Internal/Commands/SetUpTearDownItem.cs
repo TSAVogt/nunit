@@ -101,7 +101,6 @@ namespace NUnit.Framework.Internal.Commands
 
             if (TestContext.Parameters.Names.Contains("RuntimeCallbacks"))
             {
-                // TODO: prove Stefan with reverse!
                 foreach (var hook in context.Hooks.Reverse())
                 {
                     if (context.CurrentTest.IsSuite)
