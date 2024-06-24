@@ -50,7 +50,30 @@ namespace NUnit.Framework.Internal.Commands
             _setUpWasRun = true;
 
             foreach (IMethodInfo setUpMethod in _setUpMethods)
+            {
+                TriggerBeforeSetupsHooks(context, setUpMethod);
                 RunSetUpOrTearDownMethod(context, setUpMethod);
+            }
+        }
+
+        private void TriggerBeforeSetupsHooks(TestExecutionContext context, IMethodInfo setUpMethod)
+        {
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            foreach (var hook in context.Hooks)
+            {
+                if (context.CurrentTest.IsSuite) // if !IsSuite => SetUp case!
+                {
+                    hook.BeforeOneTimeSetUp(setUpMethod.Name);
+                }
+                else
+                {
+                    hook.BeforeSetUp(setUpMethod.Name);
+                }
+            }
         }
 
         /// <summary>
