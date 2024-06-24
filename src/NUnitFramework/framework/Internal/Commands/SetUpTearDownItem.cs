@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal.Builders;
 using NUnit.Framework.Internal.Execution;
@@ -51,12 +52,19 @@ namespace NUnit.Framework.Internal.Commands
 
             foreach (IMethodInfo setUpMethod in _setUpMethods)
             {
-                TriggerBeforeSetupsHooks(context, setUpMethod);
-                RunSetUpOrTearDownMethod(context, setUpMethod);
+                try
+                {
+                    TriggerBeforeSetUpsHooks(context, setUpMethod);
+                    RunSetUpOrTearDownMethod(context, setUpMethod);
+                }
+                finally
+                {
+                    TriggerAfterSetUpsHooks(context, setUpMethod);
+                }
             }
         }
 
-        private void TriggerBeforeSetupsHooks(TestExecutionContext context, IMethodInfo setUpMethod)
+        private void TriggerBeforeSetUpsHooks(TestExecutionContext context, IMethodInfo setUpMethod)
         {
             if (context.CurrentTest is null)
             {
@@ -75,6 +83,27 @@ namespace NUnit.Framework.Internal.Commands
                 }
             }
         }
+
+        private void TriggerAfterSetUpsHooks(TestExecutionContext context, IMethodInfo setUpMethod)
+        {
+            if (context.CurrentTest is null)
+            {
+                return;
+            }
+
+            foreach (var hook in context.Hooks.Reverse())
+            {
+                if (context.CurrentTest.IsSuite)
+                {
+                    hook.AfterOneTimeSetUp(setUpMethod.Name);
+                }
+                else
+                {
+                    hook.AfterSetUp(setUpMethod.Name);
+                }
+            }
+        }
+
 
         /// <summary>
         /// Run TearDown for this level.
