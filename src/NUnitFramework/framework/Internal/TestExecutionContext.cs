@@ -85,7 +85,6 @@ namespace NUnit.Framework.Internal
             _priorContext = null;
             TestCaseTimeout = 0;
             UpstreamActions = new List<ITestAction>();
-            Hooks = new List<IHooks>();
 
             UpdateContextFromEnvironment();
 
@@ -103,7 +102,7 @@ namespace NUnit.Framework.Internal
             _priorContext = other;
 
             CurrentTest = other.CurrentTest;
-            Hooks = new List<IHooks>(other.Hooks);
+            HookExtension = other.HookExtension;
 
             CurrentResult = other.CurrentResult;
             TestObject = other.TestObject;
@@ -397,7 +396,7 @@ namespace NUnit.Framework.Internal
         /// <summary>
         /// Hook Extensions
         /// </summary>
-        public IList<IHooks> Hooks
+        public IHooks HookExtension
         {
             get;
             set;

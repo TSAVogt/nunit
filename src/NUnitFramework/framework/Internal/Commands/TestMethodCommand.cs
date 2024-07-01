@@ -97,29 +97,23 @@ namespace NUnit.Framework.Internal.Commands
 
         private void TriggerBeforeTestHook(TestExecutionContext context)
         {
-            if (context.CurrentTest is null)
+            if (context.HookExtension is null || context.CurrentTest is null)
             {
                 return;
             }
 
-            foreach (var hook in context.Hooks)
-            {
-                hook.BeforeTest(_testMethod.MethodName);
-            }
+            context.HookExtension.BeforeTest(_testMethod.MethodName);
         }
 
         private void TriggerAferTestHook(TestExecutionContext context)
         {
-            if (context.CurrentTest is null)
+            if (context.HookExtension is null || context.CurrentTest is null)
             {
                 return;
             }
 
-            foreach (var hook in context.Hooks)
-            {
-                // H-TODO if (context.CurrentTest.IsSuite) Do we need that for TestCaseSource, ...?
-                hook.AfterTest(_testMethod.MethodName);
-            }
+            // H-TODO if (context.CurrentTest.IsSuite) Do we need that for TestCaseSource, ...?
+            context.HookExtension.AfterTest(_testMethod.MethodName);
         }
     }
 }

@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal.Builders;
 using NUnit.Framework.Internal.Execution;
@@ -66,41 +65,35 @@ namespace NUnit.Framework.Internal.Commands
 
         private void TriggerBeforeSetUpsHooks(TestExecutionContext context, IMethodInfo setUpMethod)
         {
-            if (context.CurrentTest is null)
+            if (context.HookExtension is null || context.CurrentTest is null)
             {
                 return;
             }
 
-            foreach (var hook in context.Hooks)
+            if (context.CurrentTest.IsSuite)
             {
-                if (context.CurrentTest.IsSuite) // if !IsSuite => SetUp case!
-                {
-                    hook.BeforeOneTimeSetUp(setUpMethod.Name);
-                }
-                else
-                {
-                    hook.BeforeSetUp(setUpMethod.Name);
-                }
+                context.HookExtension.BeforeOneTimeSetUp(setUpMethod.Name);
+            }
+            else
+            {
+                context.HookExtension.BeforeSetUp(setUpMethod.Name);
             }
         }
 
         private void TriggerAfterSetUpsHooks(TestExecutionContext context, IMethodInfo setUpMethod)
         {
-            if (context.CurrentTest is null)
+            if (context.HookExtension is null || context.CurrentTest is null)
             {
                 return;
             }
 
-            foreach (var hook in context.Hooks.Reverse())
+            if (context.CurrentTest.IsSuite)
             {
-                if (context.CurrentTest.IsSuite)
-                {
-                    hook.AfterOneTimeSetUp(setUpMethod.Name);
-                }
-                else
-                {
-                    hook.AfterSetUp(setUpMethod.Name);
-                }
+                context.HookExtension.AfterOneTimeSetUp(setUpMethod.Name);
+            }
+            else
+            {
+                context.HookExtension.AfterSetUp(setUpMethod.Name);
             }
         }
 
@@ -167,41 +160,34 @@ namespace NUnit.Framework.Internal.Commands
 
         private void TriggerBeforeTearDownsHooks(TestExecutionContext context, IMethodInfo tearDownMethod)
         {
-            if (context.CurrentTest is null)
+            if (context.HookExtension is null || context.CurrentTest is null)
             {
                 return;
             }
-
-            foreach (var hook in context.Hooks)
+            if (context.CurrentTest.IsSuite)
             {
-                if (context.CurrentTest.IsSuite) // if !IsSuite => SetUp case!
-                {
-                    hook.BeforeOneTimeTearDown(tearDownMethod.Name);
-                }
-                else
-                {
-                    hook.BeforeTearDown(tearDownMethod.Name);
-                }
+                context.HookExtension.BeforeOneTimeTearDown(tearDownMethod.Name);
+            }
+            else
+            {
+                context.HookExtension.BeforeTearDown(tearDownMethod.Name);
             }
         }
 
         private void TriggerAfterTearDownsHooks(TestExecutionContext context, IMethodInfo tearDownMethod)
         {
-            if (context.CurrentTest is null)
+            if (context.HookExtension is null || context.CurrentTest is null)
             {
                 return;
             }
 
-            foreach (var hook in context.Hooks.Reverse())
+            if (context.CurrentTest.IsSuite)
             {
-                if (context.CurrentTest.IsSuite)
-                {
-                    hook.AfterOneTimeTearDown(tearDownMethod.Name);
-                }
-                else
-                {
-                    hook.AfterTearDown(tearDownMethod.Name);
-                }
+                context.HookExtension.AfterOneTimeTearDown(tearDownMethod.Name);
+            }
+            else
+            {
+                context.HookExtension.AfterTearDown(tearDownMethod.Name);
             }
         }
     }
