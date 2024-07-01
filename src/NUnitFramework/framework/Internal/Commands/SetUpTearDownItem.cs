@@ -104,7 +104,6 @@ namespace NUnit.Framework.Internal.Commands
             }
         }
 
-
         /// <summary>
         /// Run TearDown for this level.
         /// </summary>
@@ -124,6 +123,7 @@ namespace NUnit.Framework.Internal.Commands
                     // run the teardowns in reverse order to provide consistency.
                     var index = _tearDownMethods.Count;
                     while (--index >= 0)
+                    {
                         try
                         {
                             TriggerBeforeTearDownsHooks(context, _tearDownMethods[index]);
@@ -133,6 +133,7 @@ namespace NUnit.Framework.Internal.Commands
                         {
                             TriggerAfterTearDownsHooks(context, _tearDownMethods[index]);
                         }
+                    }
 
                     // If there are new assertion results here, they are warnings issued
                     // in teardown. Redo test completion so they are listed properly.
@@ -203,6 +204,5 @@ namespace NUnit.Framework.Internal.Commands
                 }
             }
         }
-
     }
 }

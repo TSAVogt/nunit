@@ -121,6 +121,5 @@ namespace NUnit.Framework.Internal.Commands
                 hook.AfterTest(_testMethod.MethodName);
             }
         }
-
     }
 }
