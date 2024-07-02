@@ -3,7 +3,7 @@ namespace NUnit.Framework.Interfaces;
 /// <summary>
 /// H-TODO summary missing
 /// </summary>
-public interface IHooks
+public interface IHookExtension
 {
     // H-TODO clarify parameters. Is TestExecutionContext needed?
     /// <summary/>

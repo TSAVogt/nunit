@@ -396,7 +396,7 @@ namespace NUnit.Framework.Internal
         /// <summary>
         /// Hook Extensions
         /// </summary>
-        public IHooks HookExtension
+        public IHookExtension HookExtension
         {
             get;
             set;
