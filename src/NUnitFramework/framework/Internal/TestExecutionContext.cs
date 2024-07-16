@@ -401,7 +401,7 @@ namespace NUnit.Framework.Internal
         /// <summary>
         /// Hook Extension to support high level test extensions.
         /// </summary>
-        public HookExtension HookExtension { get; } = new();
+        public HookExtension HookExtension { get; set; }
 
         #endregion
 
