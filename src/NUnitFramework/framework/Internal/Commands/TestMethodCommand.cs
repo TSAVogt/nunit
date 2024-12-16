@@ -85,15 +85,7 @@ namespace NUnit.Framework.Internal.Commands
                 arguments[_arguments.Length] = context.CancellationToken;
             }
 
-            try
-            {
-                context.HookExtension?.OnBeforeTest(context, _testMethod);
-                return _testMethod.Method.Invoke(context.TestObject, arguments);
-            }
-            finally
-            {
-                context.HookExtension?.OnAfterTest(context, _testMethod);
-            }
+            return _testMethod.Method.Invoke(context.TestObject, arguments);
         }
     }
 }

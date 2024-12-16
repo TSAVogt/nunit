@@ -4,15 +4,8 @@ using System;
 
 namespace NUnit.Framework.Internal.HookExtensions
 {
-    internal class TestHookTestMethodEventArgs : EventArgs
+    internal class TestHookTestMethodEventArgs(TestExecutionContext context) : EventArgs
     {
-        public TestHookTestMethodEventArgs(TestExecutionContext context, TestMethod testMethod)
-        {
-            Context = context;
-            TestMethod = testMethod;
-        }
-
-        public TestExecutionContext Context { get; }
-        public TestMethod TestMethod { get; }
+        public TestExecutionContext Context { get; } = context;
     }
 }

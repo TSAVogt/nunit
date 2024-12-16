@@ -27,7 +27,7 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
             {
                 outcomeMatchStatement = OutcomeMismatch;
             }
-            TestLog.Log($"{outcomeMatchStatement}: {eventArgs.TestMethod.MethodName} -> {eventArgs.Context.CurrentResult.ResultState}");
+            TestLog.Log($"{outcomeMatchStatement}: {eventArgs.Context.CurrentTest.MethodName} -> {eventArgs.Context.CurrentResult.ResultState}");
         });
     }
 }
@@ -60,7 +60,7 @@ public class AfterTestHooksEvaluateTestOutcomeTests
     {
         var testResult = TestsUnderTest.Execute();
 
-        Assert.That(testResult.TestRunResult.Total, Is.Not.EqualTo(0));
+        Assert.That(testResult.Logs.Length, Is.Not.EqualTo(0));
         Assert.Multiple(() =>
             {
                 foreach (string logLine in testResult.Logs)

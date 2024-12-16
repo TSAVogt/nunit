@@ -62,14 +62,14 @@ public class HookExtension
         await _invokeAfterAnySetUps(this, new TestHookIMethodEventArgs(context, method));
     }
 
-    internal async Task OnBeforeTest(TestExecutionContext context, TestMethod testMethod)
+    internal async Task OnBeforeTest(TestExecutionContext context)
     {
-        await _invokeBeforeTest(this, new TestHookTestMethodEventArgs(context, testMethod));
+        await _invokeBeforeTest(this, new TestHookTestMethodEventArgs(context));
     }
 
-    internal async Task OnAfterTest(TestExecutionContext context, TestMethod testMethod)
+    internal async Task OnAfterTest(TestExecutionContext context)
     {
-        await _invokeAfterTest(this, new TestHookTestMethodEventArgs(context, testMethod));
+        await _invokeAfterTest(this, new TestHookTestMethodEventArgs(context));
     }
 
     internal async Task OnBeforeAnyTearDowns(TestExecutionContext context, IMethodInfo method)
