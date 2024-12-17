@@ -16,10 +16,11 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
         context.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
         {
             string outcomeMatchStatement;
-            if (context.CurrentResult.ResultState == ResultState.Error && context.CurrentTest.MethodName.StartsWith("FailedTest"))
+            var currentResultState = eventArgs.Context.CurrentResult.ResultState;
+            if ((currentResultState == ResultState.Error || currentResultState == ResultState.Failure) && eventArgs.Context.CurrentTest.MethodName.StartsWith("FailedTest"))
             {
                 outcomeMatchStatement = OutcomeMatched;
-            } else if (context.CurrentResult.ResultState == ResultState.Success && context.CurrentTest.MethodName.StartsWith("PassedTest"))
+            } else if (currentResultState == ResultState.Success && eventArgs.Context.CurrentTest.MethodName.StartsWith("PassedTest"))
             {
                 outcomeMatchStatement = OutcomeMatched;
             }
@@ -27,7 +28,7 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
             {
                 outcomeMatchStatement = OutcomeMismatch;
             }
-            TestLog.Log($"{outcomeMatchStatement}: {eventArgs.Context.CurrentTest.MethodName} -> {eventArgs.Context.CurrentResult.ResultState}");
+            TestLog.Log($"{outcomeMatchStatement}: {eventArgs.Context.CurrentTest.MethodName} -> {currentResultState}");
         });
     }
 }
