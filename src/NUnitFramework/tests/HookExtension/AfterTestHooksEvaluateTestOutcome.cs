@@ -15,20 +15,19 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
     {
         context.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
         {
-            string outcomeMatchStatement;
-            var currentResultState = eventArgs.Context.CurrentResult.ResultState;
-            if ((currentResultState == ResultState.Error || currentResultState == ResultState.Failure) && eventArgs.Context.CurrentTest.MethodName.StartsWith("FailedTest"))
+            string outcomeMatchStatement = eventArgs.Context.CurrentResult.ResultState switch
             {
-                outcomeMatchStatement = OutcomeMatched;
-            } else if (currentResultState == ResultState.Success && eventArgs.Context.CurrentTest.MethodName.StartsWith("PassedTest"))
-            {
-                outcomeMatchStatement = OutcomeMatched;
-            }
-            else
-            {
-                outcomeMatchStatement = OutcomeMismatch;
-            }
-            TestLog.Log($"{outcomeMatchStatement}: {eventArgs.Context.CurrentTest.MethodName} -> {currentResultState}");
+                ResultState { Status: TestStatus.Failed } when
+                    eventArgs.Context.CurrentTest.MethodName.StartsWith("FailedTest") => OutcomeMatched,
+                ResultState { Status: TestStatus.Passed } when
+                    eventArgs.Context.CurrentTest.MethodName.StartsWith("PassedTest") => OutcomeMatched,
+                ResultState { Status: TestStatus.Skipped } when
+                    eventArgs.Context.CurrentTest.MethodName.StartsWith("TestIgnored") => OutcomeMatched,
+                _ => OutcomeMismatch
+            };
+
+            TestLog.Log(
+                $"{outcomeMatchStatement}: {eventArgs.Context.CurrentTest.MethodName} -> {eventArgs.Context.CurrentResult.ResultState}");
         });
     }
 }
@@ -55,7 +54,19 @@ public class AfterTestHooksEvaluateTestOutcomeTests
         }
 
         [TestCase(ExpectedResult = 1)]
-        public int FailedTestByWrongExpextedResult() => 2;
+        public int FailedTestByWrongExpectedResult() => 2;
+
+        [Test]
+        public void TestIgnoredByAssertIgnore()
+        {
+            Assert.Ignore();
+        }
+
+        [Test]
+        public void TestIgnoredByException()
+        {
+            throw new IgnoreException("Ignore this test");
+        }
     }
 
     [Test]
