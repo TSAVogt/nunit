@@ -23,6 +23,8 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
                     eventArgs.Context.CurrentTest.MethodName.StartsWith("PassedTest") => OutcomeMatched,
                 ResultState { Status: TestStatus.Skipped } when
                     eventArgs.Context.CurrentTest.MethodName.StartsWith("TestIgnored") => OutcomeMatched,
+                ResultState { Status: TestStatus.Warning } when
+                    eventArgs.Context.CurrentTest.MethodName.StartsWith("WarningTest") => OutcomeMatched,
                 _ => OutcomeMismatch
             };
 
@@ -66,6 +68,12 @@ public class AfterTestHooksEvaluateTestOutcomeTests
         public void TestIgnoredByException()
         {
             throw new IgnoreException("Ignore this test");
+        }
+
+        [Test]
+        public void WarningTestWithWarnings()
+        {
+            Assert.Warn("Some warning.");
         }
     }
 
