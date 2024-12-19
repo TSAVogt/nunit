@@ -53,6 +53,9 @@ public class AfterTestHooksEvaluateTestOutcomeTests
         {
             throw new System.Exception();
         }
+
+        [TestCase(ExpectedResult = 1)]
+        public int FailedTestByWrongExpextedResult() => 2;
     }
 
     [Test]
