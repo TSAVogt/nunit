@@ -1,7 +1,8 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
@@ -20,63 +21,84 @@ public class AfterSetUpOutcomeLogger : NUnitAttribute, IApplyToContext
             string outcomeMatchStatement = eventArgs.Context.CurrentResult.ResultState switch
             {
                 ResultState { Status: TestStatus.Failed } when
-                    eventArgs.Context.CurrentTest.MethodName.StartsWith("FailedTest") => OutcomeMatched,
+                    eventArgs.Context.CurrentTest.Name.Contains("4Failed") => OutcomeMatched,
                 ResultState { Status: TestStatus.Passed } when
-                    eventArgs.Context.CurrentTest.MethodName.StartsWith("PassedTest") => OutcomeMatched,
+                    eventArgs.Context.CurrentTest.Name.Contains("4Passed") => OutcomeMatched,
                 ResultState { Status: TestStatus.Skipped } when
-                    eventArgs.Context.CurrentTest.MethodName.StartsWith("TestIgnored") => OutcomeMatched,
+                    eventArgs.Context.CurrentTest.Name.Contains("4Ignored") => OutcomeMatched,
                 ResultState { Status: TestStatus.Warning } when
-                    eventArgs.Context.CurrentTest.MethodName.StartsWith("WarningTest") => OutcomeMatched,
+                    eventArgs.Context.CurrentTest.Name.Contains("4Warning") => OutcomeMatched,
                 _ => OutcomeMismatch
             };
 
             TestLog.Log(
-                $"{outcomeMatchStatement}: {eventArgs.Context.CurrentTest.MethodName} -> {eventArgs.Context.CurrentResult.ResultState}");
+                $"{outcomeMatchStatement}: {eventArgs.Context.CurrentTest.Name} -> {eventArgs.Context.CurrentResult.ResultState}");
         });
     }
 }
 
-public class FailingReason : IEnumerable
-
+public enum FailingReason
 {
-    public static IEnumerable<Reason> Reasons
-    {
-        get
-        {
-            yield return Reason.Assertion;
-            yield return Reason.Exception;
-        }
-    }
-
-    public IEnumerator GetEnumerator()
-    {
-        throw new System.NotImplementedException();
-    }
-}
-
-public enum Reason
-{
-    Assertion,
-    Exception
+    Assertion4Failed,
+    Exception4Failed,
+    IgnoreAssertion4Ignored,
+    IgnoreException4Ignored,
+    Warn4Warning,
+    None4Passed
 }
 
 public class AfterSetUpHooksEvaluateTestOutcomeTests
 {
-    //[TestSetupUnderTest]
-    //[AfterSetUpOutcomeLogger]
-    [TestFixtureSource(typeof(FailingReason))]
+    [TestSetupUnderTest]
+    [NonParallelizable]
+    [AfterSetUpOutcomeLogger]
+    [TestFixtureSource(nameof(GetFailingReasons))]
     public class TestsUnderTestsWithDifferentSetUpOutcome
     {
         private readonly FailingReason _failingReason;
+        public static IEnumerable<FailingReason> GetFailingReasons()
+        {
+            return Enum.GetValues(typeof(FailingReason)).Cast<FailingReason>();
+        }
 
-        public TestsUnderTestsWithDifferentSetUpOutcome(FailingReason failingReason) => this._failingReason = failingReason;
+        public TestsUnderTestsWithDifferentSetUpOutcome(FailingReason failingReason) => _failingReason = failingReason;
 
         [OneTimeSetUp]
-        public void OneTimeSetUp() => TestLog.LogCurrentMethod();
+        public void OneTimeSetUp()
+        {
+            switch (_failingReason)
+            {
+                case FailingReason.Assertion4Failed:
+                    Assert.Fail("OneTimeSetUp fails by Assertion_Failed.");
+                    break;
+                case FailingReason.Exception4Failed:
+                    throw new Exception("OneTimeSetUp throwing an exception.");
+                case FailingReason.None4Passed:
+                    break;
+                case FailingReason.IgnoreAssertion4Ignored:
+                    Assert.Ignore("OneTimeSetUp ignored by Assert.Ignore.");
+                    break;
+                case FailingReason.IgnoreException4Ignored:
+                    throw new IgnoreException("OneTimeSetUp ignored by IgnoreException.");
+                case FailingReason.Warn4Warning:
+                    Assert.Warn("OneTimeSetUp with warning.");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
 
         [Test]
-        public void SomeTest() => TestLog.LogCurrentMethod();
+        public void SomeTest()
+        {
+            var fixtureName = TestContext.CurrentContext.Test.Parent.Name;
+            if(!(fixtureName.Contains("4Passed") || fixtureName.Contains("4Warning")))
+            {
+                TestLog.Log(AfterSetUpOutcomeLogger.OutcomeMismatch + $" -> Test Method of '{fixtureName}' executed unexpected!");
+            }
+        }
     }
+
 
     [Test]
     [NonParallelizable]
@@ -84,9 +106,12 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
     {
         var testResult = TestsUnderTest.Execute();
 
-        Assert.That(TestLog.Logs, Is.EqualTo(new[]
+        Assert.Multiple(() =>
         {
-            "SomeTest"
-        }));
+            foreach (string log in testResult.Logs)
+            {
+                Assert.That(log, Does.Not.Contain(AfterSetUpOutcomeLogger.OutcomeMismatch));
+            }
+        });
     }
 }
