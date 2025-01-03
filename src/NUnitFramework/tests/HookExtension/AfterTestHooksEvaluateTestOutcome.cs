@@ -1,5 +1,6 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
+using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
@@ -90,6 +91,9 @@ public class AfterTestHooksEvaluateTestOutcomeTests
                 {
                     Assert.That(logLine, Does.StartWith(AfterTestOutcomeLogger.OutcomeMatched));
                 }
+
+                // H-TODO: clean up warning outcome. Just added for understanding how Assert.Warn is handled. See also AfterSetUpHooksEvaluateTestOutcomeTests.cs
+                Assert.That(testResult.TestRunResult.TestCases.Where(t=>t.Name.StartsWith("Warning")).Single().Result, Is.EqualTo("Warning"));
             });
     }
 }

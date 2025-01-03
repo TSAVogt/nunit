@@ -43,7 +43,7 @@ public enum FailingReason
     Exception4Failed,
     IgnoreAssertion4Ignored,
     IgnoreException4Ignored,
-    Warn4Warning,
+    Warn4Passed,
     None4Passed
 }
 
@@ -80,7 +80,7 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
                     break;
                 case FailingReason.IgnoreException4Ignored:
                     throw new IgnoreException("OneTimeSetUp ignored by IgnoreException.");
-                case FailingReason.Warn4Warning:
+                case FailingReason.Warn4Passed:
                     Assert.Warn("OneTimeSetUp with warning.");
                     break;
                 default:
@@ -112,6 +112,11 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
             {
                 Assert.That(log, Does.Not.Contain(AfterSetUpOutcomeLogger.OutcomeMismatch));
             }
+
+            // H-TODO: This asserts checks the assumption that a Assert.Warn will have a passed outcome.
+            Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(2));
+            Assert.That(testResult.TestRunResult.Failed, Is.EqualTo(2));
+            Assert.That(testResult.TestRunResult.Skipped, Is.EqualTo(2));
         });
     }
 }

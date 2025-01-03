@@ -56,10 +56,11 @@ namespace NUnit.Framework.Internal.Commands
                     context.HookExtension?.OnBeforeAnySetUps(context, setUpMethod);
                     RunSetUpOrTearDownMethod(context, setUpMethod);
                 }
-                finally
+                catch (Exception ex)
                 {
-                    context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                    context.CurrentResult.RecordException(ex);
                 }
+                context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
             }
         }
 
