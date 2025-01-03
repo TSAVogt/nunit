@@ -22,7 +22,7 @@ public class TestsUnderTest
         string tempFileName = Path.GetTempFileName() + ".xml";
         var parameters = new List<string>
         {
-            "--where", $"class == {testUnderTestClass} && cat == {TestSetupUnderTestAttribute.Category}",
+            "--where", $"class == '{testUnderTestClass}' && cat == {TestSetupUnderTestAttribute.Category}",
             $"--result:{tempFileName}"
         };
         if (additionalParameters is { Length: > 0 })
