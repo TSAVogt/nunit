@@ -89,9 +89,9 @@ namespace NUnit.Framework.Tests.HookExtension
         }
 
         // todo: Additional tests to be added
-        // test if the exception from test itself is known by the test
-        // test if the exception from hook is known by the test
-        // test if there are two hooks and exception happens in 1 hook. What happens to the other hook?
-        // test for hook orders
+        // test if the exception from Test is known by the Hook.
+        // test if the exception from Hook is known by the Test.
+        // test if there are two hooks and exception happens in 1 Hook. What happens to the other hook?
+        // test for order of hooks
     }
 }
