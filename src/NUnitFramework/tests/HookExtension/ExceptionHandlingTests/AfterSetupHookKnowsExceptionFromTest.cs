@@ -7,7 +7,7 @@ using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
-namespace NUnit.Framework.Tests.HookExtension
+namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
 {
     internal class ActivateTestFailureHandlingHook : NUnitAttribute, IApplyToContext
     {
@@ -16,17 +16,13 @@ namespace NUnit.Framework.Tests.HookExtension
             context?.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
             {
                 if (TestExecutionContext.CurrentContext.CurrentResult.Message.Contains(nameof(NotImplementedException)))
-                {
                     TestExecutionContext.CurrentContext.CurrentTest.Properties.Add("NotImplementedException_SyncHook", "HandledSync");
-                }
             });
 
             context?.HookExtension?.AfterTest.AddHandler(async (sender, eventArgs) =>
             {
                 if (TestExecutionContext.CurrentContext.CurrentResult.Message.Contains(nameof(NotImplementedException)))
-                {
                     TestExecutionContext.CurrentContext.CurrentTest.Properties.Add("NotImplementedException_AsyncHook", "HandledAsync");
-                }
 
                 await Task.Delay(1);
             });

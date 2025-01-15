@@ -7,7 +7,7 @@ using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
-namespace NUnit.Framework.Tests.HookExtension
+namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
 {
     internal class ActivateSynchronousHookThrowingException : NUnitAttribute, IApplyToContext
     {
@@ -28,7 +28,7 @@ namespace NUnit.Framework.Tests.HookExtension
                                         .CurrentTest.Properties
                                         .Add("BeforeTestHook_ThreadId", Thread.CurrentThread.ManagedThreadId);
                 }
-                
+
             });
         }
     }
@@ -58,7 +58,7 @@ namespace NUnit.Framework.Tests.HookExtension
                 CacheThreadId();
                 Assert.Pass("Another test passed.");
             }
-            
+
             [Test, ActivateSynchronousHookThrowingException]
             public void TestFails_WithAssertFail()
             {

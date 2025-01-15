@@ -3,13 +3,14 @@
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
-namespace NUnit.Framework.Tests.HookExtension
+namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
 {
-    internal class ActivateSynchronousHook : NUnitAttribute, IApplyToContext
+    internal class ActivateSyncAndAsyncHook : NUnitAttribute, IApplyToContext
     {
         public virtual void ApplyToContext(TestExecutionContext context)
         {
@@ -17,19 +18,21 @@ namespace NUnit.Framework.Tests.HookExtension
             {
                 TestExecutionContext.CurrentContext
                                     .CurrentTest.Properties
-                                    .Add("BeforeTestHook_ThreadId", Thread.CurrentThread.ManagedThreadId);
+                                    .Add("BeforeTestSyncHook_ThreadId", Thread.CurrentThread.ManagedThreadId);
             });
 
-            context?.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
+            context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
             {
                 TestExecutionContext.CurrentContext
                                     .CurrentTest.Properties
-                                    .Add("AfterTestHook_ThreadId", Thread.CurrentThread.ManagedThreadId);
+                                    .Add("BeforeTestAsyncHook_ThreadId", Thread.CurrentThread.ManagedThreadId);
+
+                await Task.Delay(1);
             });
         }
     }
 
-    internal class SynchronousHookInvocationTests
+    internal class SyncAndAsyncMixedHookInvocationTests
     {
         [TestSetupUnderTest]
         public class TestUnderTest
@@ -42,19 +45,19 @@ namespace NUnit.Framework.Tests.HookExtension
                                     .Add("TestThreadId", Thread.CurrentThread.ManagedThreadId);
             }
 
-            [Test, ActivateSynchronousHook]
+            [Test, ActivateSyncAndAsyncHook]
             public void TestPasses_WithAssertPass()
             {
                 Assert.Pass("Test passed.");
             }
 
-            [Test, ActivateSynchronousHook]
+            [Test, ActivateSyncAndAsyncHook]
             public void TestFails_WithAssertFail()
             {
                 Assert.Fail("Test failed with Assert.Fail");
             }
 
-            [Test, ActivateSynchronousHook]
+            [Test, ActivateSyncAndAsyncHook]
             public void TestFails_WithException()
             {
                 throw new Exception("Test failed with Exception");
@@ -63,7 +66,9 @@ namespace NUnit.Framework.Tests.HookExtension
 
         [Test]
         [NonParallelizable]
-        public void SynchronousHookInvocation_HookExecutesInSameThreadAsTest()
+        [Explicit("Is it a valid requirement(from discussion thread) that:" +
+                  " the hooks must be executing in the same thread as test itself because of usage of async-wait? ")]
+        public void SyncAndAsyncMixedHookInvocation_HooksExecutesTest()
         {
             var testResult = TestsUnderTest.Execute();
 
@@ -73,12 +78,12 @@ namespace NUnit.Framework.Tests.HookExtension
             foreach (var testCase in testResult.TestRunResult.TestCases)
             {
                 var testThreadId = int.Parse(testCase.Properties["TestThreadId"].First());
-                var beforeTestHookThreadId = int.Parse(testCase.Properties["BeforeTestHook_ThreadId"].First());
-                var afterTestHookThreadId = int.Parse(testCase.Properties["AfterTestHook_ThreadId"].First());
+                var beforeTestSyncHookThreadId = int.Parse(testCase.Properties["BeforeTestSyncHook_ThreadId"].First());
+                var beforeTestAsyncHookThreadId = int.Parse(testCase.Properties["BeforeTestAsyncHook_ThreadId"].First());
 
-                Assert.That(testThreadId, Is.EqualTo(beforeTestHookThreadId));
-                Assert.That(testThreadId, Is.EqualTo(afterTestHookThreadId));
-                Assert.That(beforeTestHookThreadId, Is.EqualTo(afterTestHookThreadId));
+                Assert.That(testThreadId, Is.EqualTo(beforeTestSyncHookThreadId));
+                Assert.That(testThreadId, !Is.EqualTo(beforeTestAsyncHookThreadId));
+                Assert.That(beforeTestSyncHookThreadId, !Is.EqualTo(beforeTestAsyncHookThreadId));
             }
         }
     }

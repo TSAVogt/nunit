@@ -8,7 +8,7 @@ using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
-namespace NUnit.Framework.Tests.HookExtension
+namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
 {
     internal class ActivateAsynchronousHook : NUnitAttribute, IApplyToContext
     {

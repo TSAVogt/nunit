@@ -7,7 +7,7 @@ using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
-namespace NUnit.Framework.Tests.HookExtension;
+namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
 public class AfterSetUpOutcomeLogger : NUnitAttribute, IApplyToContext
 {
@@ -92,10 +92,8 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
         public void SomeTest()
         {
             var fixtureName = TestContext.CurrentContext.Test.Parent.Name;
-            if(!(fixtureName.Contains("4Passed") || fixtureName.Contains("4Warning")))
-            {
+            if (!(fixtureName.Contains("4Passed") || fixtureName.Contains("4Warning")))
                 TestLog.Log(AfterSetUpOutcomeLogger.OutcomeMismatch + $" -> Test Method of '{fixtureName}' executed unexpected!");
-            }
         }
     }
 
