@@ -29,7 +29,7 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
         }
     }
 
-    internal class TestFailureHandlingHookTests
+    internal class HookIsAbleToHandleExceptionFromTest
     {
         [TestSetupUnderTest, ActivateTestFailureHandlingHook]
         public class TestUnderTest
@@ -43,7 +43,7 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
 
         [Test]
         [NonParallelizable]
-        public void HookHandlingException_HookExecutes_HookKnowsAboutExceptionFromTest()
+        public void AfterTestHookExecutes_HookHandlesExceptionFromTest()
         {
             var testResult = TestsUnderTest.Execute();
 

@@ -87,11 +87,5 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
                 Assert.That(testThreadId, !Is.EqualTo(afterTestHookThreadId));
             }
         }
-
-        // todo: Additional tests to be added
-        // test if the exception from Test is known by the Hook.
-        // test if the exception from Hook is known by the Test.
-        // test if there are two hooks and exception happens in 1 Hook. What happens to the other hook?
-        // test for order of hooks
     }
 }
