@@ -5,7 +5,7 @@ using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
-namespace NUnit.Framework.Tests.HookExtension;
+namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
 public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
 {
@@ -93,7 +93,7 @@ public class AfterTestHooksEvaluateTestOutcomeTests
                 }
 
                 // H-TODO: clean up warning outcome. Just added for understanding how Assert.Warn is handled. See also AfterSetUpHooksEvaluateTestOutcomeTests.cs
-                Assert.That(testResult.TestRunResult.TestCases.Where(t=>t.Name.StartsWith("Warning")).Single().Result, Is.EqualTo("Warning"));
+                Assert.That(testResult.TestRunResult.TestCases.Where(t => t.Name.StartsWith("Warning")).Single().Result, Is.EqualTo("Warning"));
             });
     }
 }
