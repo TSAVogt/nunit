@@ -125,12 +125,13 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
         public void SomeTest()
         {
             var fixtureName = TestContext.CurrentContext.Test.Parent.FullName;
-            if(!(fixtureName.Contains("4Passed") || fixtureName.Contains("4Warning")))
+            if (!(fixtureName.Contains("4Passed") || fixtureName.Contains("4Warning")))
             {
-                TestLog.Log(AfterSetUpOutcomeLogger.OutcomeMismatch + $" -> Test Method of '{fixtureName}' executed unexpected!");
+                TestLog.Log(AfterSetUpOutcomeLogger.OutcomeMismatch +
+                            $" -> Test Method of '{fixtureName}' executed unexpected!");
+            }
         }
     }
-
 
     [Test]
     [NonParallelizable]
@@ -147,13 +148,14 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
 
             foreach (TestCase testCase in testResult.TestRunResult.TestCases)
             {
-                Assert.That(testCase.FullName, Does.Contain(testCase.Result == "Skipped" ? "Ignored" : testCase.Result));
+                Assert.That(testCase.FullName,
+                    Does.Contain(testCase.Result == "Skipped" ? "Ignored" : testCase.Result));
             }
             // H-TODO: This asserts checks the assumption that an Assert.Warn will have a passed outcome.
-            //Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(3)); // Warn counts on OneTimeSetUp level as passed and on SetUp level as warning!
-            //Assert.That(testResult.TestRunResult.Failed, Is.EqualTo(4));
-            //Assert.That(testResult.TestRunResult.Skipped, Is.EqualTo(4));
-            //Assert.That(testResult.TestRunResult.Total, Is.EqualTo(12));
+            Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(3)); // Warn counts on OneTimeSetUp level as passed and on SetUp level as warning!
+            Assert.That(testResult.TestRunResult.Failed, Is.EqualTo(4));
+            Assert.That(testResult.TestRunResult.Skipped, Is.EqualTo(4));
+            Assert.That(testResult.TestRunResult.Total, Is.EqualTo(12));
         });
     }
 }
