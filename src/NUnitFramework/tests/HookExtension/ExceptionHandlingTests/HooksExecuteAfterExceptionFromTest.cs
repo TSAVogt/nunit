@@ -29,7 +29,7 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
         }
     }
 
-    internal class HookIsAbleToHandleExceptionFromTest
+    internal class HooksExecuteAfterExceptionFromTest
     {
         [TestSetupUnderTest, ActivateTestFailureHandlingHook]
         public class TestUnderTest

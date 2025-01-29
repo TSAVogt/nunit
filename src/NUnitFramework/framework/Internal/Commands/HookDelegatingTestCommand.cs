@@ -10,9 +10,12 @@ namespace NUnit.Framework.Internal.Commands
 
         public override TestResult Execute(TestExecutionContext context)
         {
+            // exceptions from Hooks are handled in HookExtension
+            context.HookExtension?.OnBeforeTest(context);
+
+            // exceptions from tests are handled here
             try
             {
-                context.HookExtension?.OnBeforeTest(context);
                 innerCommand.Execute(context);
             }
             catch (Exception ex)
@@ -20,9 +23,10 @@ namespace NUnit.Framework.Internal.Commands
                 context.CurrentResult.RecordException(ex);
             }
 
+            // exceptions from Hooks are handled in HookExtension
             context.HookExtension?.OnAfterTest(context);
+            
             return context.CurrentResult;
-
         }
     }
 }

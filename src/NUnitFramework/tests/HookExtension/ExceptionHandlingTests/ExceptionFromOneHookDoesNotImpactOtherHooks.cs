@@ -55,11 +55,8 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
         {
             var testResult = TestsUnderTest.Execute();
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(1));
-                Assert.That(testResult.TestRunResult.Failed, Is.EqualTo(0));
-            });
+            // no test passes as there is exception in after test hook
+            Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(0));
             
             foreach (var testCase in testResult.TestRunResult.TestCases)
             {
