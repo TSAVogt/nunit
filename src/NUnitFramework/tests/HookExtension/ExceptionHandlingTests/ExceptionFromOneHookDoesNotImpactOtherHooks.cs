@@ -43,10 +43,7 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
         public class TestUnderTest
         {
             [Test, ActivateHookThrowingException]
-            public void TestPasses_WithSimpleAssert()
-            {
-                Assert.That(1, Is.EqualTo(1));
-            }
+            public void TestPasses() { }
         }
 
         [Test]

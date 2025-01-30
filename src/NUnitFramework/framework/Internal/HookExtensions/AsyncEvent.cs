@@ -39,17 +39,17 @@ namespace NUnit.Framework.Internal.HookExtensions
         /// Adds an asynchronous handler to the event.
         /// </summary>
         /// <param name="asyncHandler">The event handler to be attached to the event.</param>
-        public void AddHandler(AsyncEventHandler<TEventArgs> asyncHandler)
+        public void AddAsyncHandler(AsyncEventHandler<TEventArgs> asyncHandler)
         {
             lock (_handlers)
                 _handlers.Add(asyncHandler);
         }
 
-        private Task Invoke(object? sender, TEventArgs e)
+        private async Task Invoke(object? sender, TEventArgs e)
         {
             if (!_handlers.Any())
             {
-                return Task.CompletedTask;
+                return;
             }
 
             Delegate[] handlers;
@@ -68,18 +68,29 @@ namespace NUnit.Framework.Internal.HookExtensions
                     }
                     catch (Exception ex)
                     {
-                        tasks.Add(Task.FromException(ex));
+                        (e as TestHookTestMethodEventArgs)?.Context.CurrentResult.RecordException(ex);
                     }
                 }
                 else if (handler is AsyncEventHandler<TEventArgs> asyncHandler)
                 {
-                    tasks.Add(Task.Run(() => asyncHandler(sender, e)));
+                    // In order to ensure that all exceptions are logged while keeping the method properly async:
+                    // await Task.WhenAll: Avoids blocking the thread and unwrapping AggregateException.
+                    // Each asyncHandler is inside a try-catch: Ensures each handler's exception is logged.
+                    tasks.Add(Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await asyncHandler(sender, e);
+                        }
+                        catch (Exception ex)
+                        {
+                            (e as TestHookTestMethodEventArgs)?.Context.CurrentResult.RecordException(ex);
+                        }
+                    }));
                 }
             }
 
-            Task taskAll = Task.WhenAll(tasks);
-            taskAll.Wait();
-            return taskAll;
+            await Task.WhenAll(tasks);
         }
     }
 }

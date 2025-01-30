@@ -35,7 +35,7 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
         public class TestUnderTest
         {
             [Test]
-            public void TestPasses_WithAssertPass()
+            public void TestFails_WithException()
             {
                 throw new NotImplementedException();
             }

@@ -1,6 +1,5 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework.Interfaces;
@@ -65,26 +64,12 @@ public class HookExtension
 
     internal async Task OnBeforeTest(TestExecutionContext context)
     {
-        try
-        {
-            await _invokeBeforeTest(this, new TestHookTestMethodEventArgs(context));
-        }
-        catch (Exception ex)
-        {
-            context.CurrentResult.RecordException(ex);
-        }
+        await _invokeBeforeTest(this, new TestHookTestMethodEventArgs(context));
     }
 
     internal async Task OnAfterTest(TestExecutionContext context)
     {
-        try
-        {
-            await _invokeAfterTest(this, new TestHookTestMethodEventArgs(context));
-        }
-        catch (Exception ex)
-        {
-            context.CurrentResult.RecordException(ex);
-        }
+        await _invokeAfterTest(this, new TestHookTestMethodEventArgs(context));
     }
 
     internal async Task OnBeforeAnyTearDowns(TestExecutionContext context, IMethodInfo method)
