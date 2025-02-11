@@ -57,15 +57,15 @@ namespace NUnit.Framework.Internal.Commands
                     RunSetUpOrTearDownMethod(context, setUpMethod);
                 }
                 // H-TODO Implement!
-                //catch (Exception ex)
-                //{
-                //    context.CurrentResult.RecordException(ex);
-                //}
-                //context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
-                finally
+                catch (Exception ex)
                 {
-                    context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                    context.CurrentResult.RecordException(ex);
                 }
+                context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                //finally
+                //{
+                //    context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                //}
             }
         }
 

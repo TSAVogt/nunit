@@ -4,10 +4,16 @@ using System;
 
 namespace NUnit.Framework.Internal.Commands
 {
+    /// <summary/>
+    /// H-ToDo: Documentation needed for class
     public class HookDelegatingTestCommand : DelegatingTestCommand
     {
-        public HookDelegatingTestCommand(TestCommand innerCommand) : base(innerCommand) { }
+        /// <summary/>
+        public HookDelegatingTestCommand(TestCommand innerCommand) : base(innerCommand)
+        {
+        }
 
+        /// <summary/>
         public override TestResult Execute(TestExecutionContext context)
         {
             try

@@ -9,7 +9,8 @@ using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
-public class AfterSetUpHooksEvaluateTestOutcomeTests
+
+public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
 {
     public class AfterSetUpOutcomeLogger : NUnitAttribute, IApplyToContext
     {
@@ -25,13 +26,11 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
                     ResultState { Status: TestStatus.Failed } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Failed") => OutcomeMatched,
                     ResultState { Status: TestStatus.Passed } when
-                        eventArgs.Context.CurrentResult.WorstAssertionStatus == AssertionStatus.Warning &&
-                        eventArgs.Context.CurrentTest.FullName.Contains("4Warning") => OutcomeMatched,
-                    ResultState { Status: TestStatus.Passed } when
-                        eventArgs.Context.CurrentResult.WorstAssertionStatus != AssertionStatus.Warning &&
                         eventArgs.Context.CurrentTest.FullName.Contains("4Passed") => OutcomeMatched,
                     ResultState { Status: TestStatus.Skipped } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Ignored") => OutcomeMatched,
+                    ResultState { Status: TestStatus.Warning } when
+                        eventArgs.Context.CurrentTest.FullName.Contains("4Warning") => OutcomeMatched,
                     _ => OutcomeMismatch
                 };
 
@@ -46,16 +45,17 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
         Exception4Failed,
         IgnoreAssertion4Ignored,
         IgnoreException4Ignored,
-        Warning4Warning, // Warn counts on OneTimeSetUp level as passed and on SetUp level as warning!
+        Warning4Passed, // Warn counts on OneTimeSetUp level as passed and on SetUp level as warning!
         None4Passed
     }
+
     private static IEnumerable<FailingReason> GetRelevantFailingReasons()
     {
         var failingReasons = Enum.GetValues(typeof(FailingReason)).Cast<FailingReason>();
 
         // H-ToDo: remove before final checkin
         // Apply filtering
-        //failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("4Warning"));
+        //failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("4Passed"));
         return failingReasons;
     }
 
@@ -63,7 +63,7 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
     [NonParallelizable]
     [AfterSetUpOutcomeLogger]
     [TestFixtureSource(nameof(GetFixtureConfig))]
-    public class TestsUnderTestsWithDifferentSetUpOutcome
+    public class TestsUnderTestsWithDifferentOntTimeSetUpOutcome
     {
         private readonly FailingReason _failingReason;
 
@@ -75,14 +75,13 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
             }
         }
 
-        public TestsUnderTestsWithDifferentSetUpOutcome(FailingReason failingReason)
+        public TestsUnderTestsWithDifferentOntTimeSetUpOutcome(FailingReason failingReason)
         {
             _failingReason = failingReason;
         }
 
-
-        [SetUp]
-        public void SetUp()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             ExecuteFailingReason();
         }
@@ -103,8 +102,8 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
                     break;
                 case FailingReason.IgnoreException4Ignored:
                     throw new IgnoreException("OneTimeSetUp ignored by IgnoreException.");
-                case FailingReason.Warning4Warning:
-                    Assert.Warn("SetUp with warning.");
+                case FailingReason.Warning4Passed:
+                    Assert.Warn("OneTimeSetUp with warning.");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

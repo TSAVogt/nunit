@@ -1,6 +1,7 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
 using System;
+using NUnit.Framework.Interfaces;
 
 namespace NUnit.Framework.Internal.Commands
 {
@@ -33,8 +34,13 @@ namespace NUnit.Framework.Internal.Commands
 
             RunTestMethodInThreadAbortSafeZone(context, () =>
             {
+                context.CurrentResult.SetResult(ResultState.Success);
                 BeforeTest(context);
-                context.CurrentResult = innerCommand.Execute(context);
+                if (context.CurrentResult.ResultState.Status == TestStatus.Passed ||
+                    context.CurrentResult.ResultState.Status == TestStatus.Warning)
+                {
+                    context.CurrentResult = innerCommand.Execute(context);
+                }
             });
 
             if (context.ExecutionStatus != TestExecutionStatus.AbortRequested)
