@@ -18,9 +18,12 @@ namespace NUnit.Framework.Internal.Commands
             catch (Exception ex)
             {
                 context.CurrentResult.RecordException(ex);
+                throw;
             }
-
-            context.HookExtension?.OnAfterTest(context);
+            finally
+            {
+                context.HookExtension?.OnAfterTest(context); 
+            }
             return context.CurrentResult;
 
         }
