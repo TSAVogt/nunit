@@ -40,11 +40,10 @@ public class TestRunHooksAreCalledBeforeTestIsExecuted
     {
         var testResult = TestsUnderTest.Execute();
 
-        Assert.That(testResult.Logs, Is.EqualTo(new string[]
-        {
+        Assert.That(testResult.Logs, Is.EqualTo([
             nameof(TestUnderTest.RegisterLongRunningBeforeTestHooks),
             nameof(TestUnderTest.RegisterLongRunningBeforeTestHooks),
-            nameof(TestUnderTest.SomeTest),
-        }));
+            nameof(TestUnderTest.SomeTest)
+        ]));
     }
 }
