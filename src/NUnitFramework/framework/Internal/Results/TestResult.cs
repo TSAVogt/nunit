@@ -84,6 +84,26 @@ namespace NUnit.Framework.Internal
             OutWriter = TextWriter.Synchronized(new StringWriter(_output));
         }
 
+        /// <summary>
+        /// Copy ctor as an enabler for <see cref="TestResult.Clone"/> class.
+        /// </summary>
+        /// <param name="other"></param>
+        protected TestResult(TestResult other)
+        {
+            Test = other.Test;
+            _resultState = other._resultState;
+            _message = other._message;
+            _stackTrace = other._stackTrace;
+            _duration = other._duration;
+            StartTime = other.StartTime;
+            EndTime = other.EndTime;
+            InternalAssertCount = other.InternalAssertCount;
+            _output = new StringBuilder(other._output.ToString());
+            OutWriter = TextWriter.Synchronized(new StringWriter(_output));
+            _assertionResults = new List<AssertionResult>(other._assertionResults);
+            _testAttachments = new List<TestAttachment>(other._testAttachments);
+        }
+
         #endregion
 
         #region ITestResult Members
@@ -394,6 +414,11 @@ namespace NUnit.Framework.Internal
         #endregion
 
         #region Other Public Methods
+
+        /// <summary>
+        /// Create a clone of the current instance.
+        /// </summary>
+        public abstract TestResult Clone();
 
         /// <summary>
         /// Set the result of the test

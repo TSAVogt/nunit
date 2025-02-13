@@ -56,16 +56,22 @@ namespace NUnit.Framework.Internal.Commands
                     context.HookExtension?.OnBeforeAnySetUps(context, setUpMethod);
                     RunSetUpOrTearDownMethod(context, setUpMethod);
                 }
-                // H-TODO Implement!
-                //catch (Exception ex)
-                //{
-                //    context.CurrentResult.RecordException(ex);
-                //}
-                //context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
-                finally
+                catch (Exception ex)
                 {
-                    context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                    TestResult originalTestResult = context.CurrentResult;
+                    try
+                    {
+                        context.CurrentResult = originalTestResult.Clone();
+                        context.CurrentResult.RecordException(ex);
+                        context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                    }
+                    finally
+                    {
+                        context.CurrentResult = originalTestResult;
+                    }
+                    throw;
                 }
+                context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
             }
         }
 

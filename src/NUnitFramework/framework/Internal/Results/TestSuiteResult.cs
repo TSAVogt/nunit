@@ -27,7 +27,30 @@ namespace NUnit.Framework.Internal
         {
         }
 
+        /// <summary>
+        /// <inheritdoc cref="TestResult"/>
+        /// </summary>
+        /// <param name="other"></param>
+        private TestSuiteResult(TestSuiteResult other) : base(other)
+        {
+            _passCount = other._passCount;
+            _failCount = other._failCount;
+            _warningCount = other._warningCount;
+            _skipCount = other._skipCount;
+            _inconclusiveCount = other._inconclusiveCount;
+            _totalCount = other._totalCount;
+            _children = new ConcurrentQueue<ITestResult>(other._children);
+        }
+
         #region Overrides
+
+        /// <summary>
+        /// <inheritdoc cref="TestResult.Clone"/>
+        /// </summary>
+        public override TestResult Clone()
+        {
+            return new TestSuiteResult(this);
+        }
 
         /// <summary>
         /// Gets the number of test cases that executed

@@ -53,7 +53,7 @@ public class AfterTestHooksEvaluateTestOutcomeTests
         [Test]
         public void FailedTestByException()
         {
-            throw new System.Exception();
+            throw new System.Exception("some exception");
         }
 
         [TestCase(ExpectedResult = 1)]

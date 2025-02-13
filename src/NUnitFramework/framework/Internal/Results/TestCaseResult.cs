@@ -19,7 +19,23 @@ namespace NUnit.Framework.Internal
         {
         }
 
+        /// <summary>
+        /// <inheritdoc cref="TestResult"/>
+        /// </summary>
+        /// <param name="other"></param>
+        private TestCaseResult(TestCaseResult other) : base(other)
+        {
+        }
+
         #region Overrides
+
+        /// <summary>
+        /// <inheritdoc cref="TestResult.Clone"/>
+        /// </summary>
+        public override TestResult Clone()
+        {
+            return new TestCaseResult(this);
+        }
 
         /// <summary>
         /// Gets the number of test cases that failed
