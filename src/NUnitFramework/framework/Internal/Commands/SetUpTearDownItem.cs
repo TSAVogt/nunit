@@ -51,6 +51,9 @@ namespace NUnit.Framework.Internal.Commands
 
             foreach (IMethodInfo setUpMethod in _setUpMethods)
             {
+                var initialResultState = context.CurrentResult.ResultState;
+                TestResult originalTestResult = context.CurrentResult;
+
                 try
                 {
                     context.HookExtension?.OnBeforeAnySetUps(context, setUpMethod);
@@ -58,7 +61,6 @@ namespace NUnit.Framework.Internal.Commands
                 }
                 catch (Exception ex)
                 {
-                    TestResult originalTestResult = context.CurrentResult;
                     try
                     {
                         context.CurrentResult = originalTestResult.Clone();
@@ -71,7 +73,34 @@ namespace NUnit.Framework.Internal.Commands
                     }
                     throw;
                 }
-                context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                if( initialResultState == ResultState.Inconclusive)
+                {
+                    // when the called setup method was starting with an inconclusive result, we need to correct it for
+                    // calling the after hook. The hook extension needs to know if there was an issue with the setup method!
+                    try
+                    {
+                        context.CurrentResult = originalTestResult.Clone();
+
+                        // Do the same handling for the cloned test result as we have for a successful test method
+                        if (context.MultipleAssertLevel > 0)
+                            context.CurrentResult.SetResult(ResultState.Error, $"Test completed with {context.MultipleAssertLevel} active assertion scopes.");
+                        else
+                            context.CurrentResult.SetResult(ResultState.Success);
+
+                        if (context.CurrentResult.AssertionResults.Count > 0)
+                            context.CurrentResult.RecordTestCompletion();
+
+                        context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                    }
+                    finally
+                    {
+                        context.CurrentResult = originalTestResult;
+                    }
+                }
+                else
+                {
+                    context.HookExtension?.OnAfterAnySetUps(context, setUpMethod);
+                }
             }
         }
 

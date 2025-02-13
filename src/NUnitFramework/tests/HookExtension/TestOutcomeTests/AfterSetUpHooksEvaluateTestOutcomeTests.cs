@@ -25,13 +25,11 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
                     ResultState { Status: TestStatus.Failed } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Failed") => OutcomeMatched,
                     ResultState { Status: TestStatus.Passed } when
-                        eventArgs.Context.CurrentResult.WorstAssertionStatus == AssertionStatus.Warning &&
-                        eventArgs.Context.CurrentTest.FullName.Contains("4Warning") => OutcomeMatched,
-                    ResultState { Status: TestStatus.Passed } when
-                        eventArgs.Context.CurrentResult.WorstAssertionStatus != AssertionStatus.Warning &&
                         eventArgs.Context.CurrentTest.FullName.Contains("4Passed") => OutcomeMatched,
                     ResultState { Status: TestStatus.Skipped } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Ignored") => OutcomeMatched,
+                    ResultState { Status: TestStatus.Warning } when
+                        eventArgs.Context.CurrentTest.FullName.Contains("4Warning") => OutcomeMatched,
                     _ => OutcomeMismatch
                 };
 
@@ -55,7 +53,7 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
 
         // H-ToDo: remove before final checkin
         // Apply filtering
-        //failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("4Warning"));
+        //failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("4Passed"));
         return failingReasons;
     }
 
