@@ -29,6 +29,8 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
                         eventArgs.Context.CurrentTest.FullName.Contains("4Passed") => OutcomeMatched,
                     ResultState { Status: TestStatus.Skipped } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Ignored") => OutcomeMatched,
+                    ResultState { Status: TestStatus.Inconclusive } when
+                        eventArgs.Context.CurrentTest.FullName.Contains("4Inconclusive") => OutcomeMatched,
                     ResultState { Status: TestStatus.Warning } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Warning") => OutcomeMatched,
                     _ => OutcomeMismatch
@@ -42,9 +44,11 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
     public enum FailingReason
     {
         Assertion4Failed,
+        MultiAssertion4Failed,
         Exception4Failed,
         IgnoreAssertion4Ignored,
         IgnoreException4Ignored,
+        Inconclusive4Inconclusive,
         Warning4Passed, // Warn counts on OneTimeSetUp level as passed and on SetUp level as warning!
         None4Passed
     }
@@ -93,6 +97,13 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
                 case FailingReason.Assertion4Failed:
                     Assert.Fail("OneTimeSetUp fails by Assertion_Failed.");
                     break;
+                case FailingReason.MultiAssertion4Failed:
+                    Assert.Multiple(() =>
+                    {
+                        Assert.Fail("1st OneTimeSetUp fails by MultiAssertion_Failed.");
+                        Assert.Fail("2nd OneTimeSetUp fails by MultiAssertion_Failed.");
+                    });
+                    break;
                 case FailingReason.Exception4Failed:
                     throw new Exception("OneTimeSetUp throwing an exception.");
                 case FailingReason.None4Passed:
@@ -102,6 +113,9 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
                     break;
                 case FailingReason.IgnoreException4Ignored:
                     throw new IgnoreException("OneTimeSetUp ignored by IgnoreException.");
+                case FailingReason.Inconclusive4Inconclusive:
+                    Assert.Inconclusive("OneTimeSetUp is inconclusive.");
+                    break;
                 case FailingReason.Warning4Passed:
                     Assert.Warn("OneTimeSetUp with warning.");
                     break;
