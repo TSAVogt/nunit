@@ -73,7 +73,7 @@ namespace NUnit.Framework.Internal.Commands
                     }
                     throw;
                 }
-                if( initialResultState == ResultState.Inconclusive)
+                if (initialResultState == ResultState.Inconclusive)
                 {
                     // when the called setup method was starting with an inconclusive result, we need to correct it for
                     // calling the after hook. The hook extension needs to know if there was an issue with the setup method!

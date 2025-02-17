@@ -136,8 +136,6 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
         }
     }
 
-
-
     [Test]
     [NonParallelizable]
     public void CheckSetUpOutcomes()

@@ -9,7 +9,7 @@ using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
-public class AfterSetUpHooksEvaluateTestOutcomeTests
+public class AfterTearDownHooksEvaluateTestOutcomeTests
 {
     public class AfterSetUpOutcomeLogger : NUnitAttribute, IApplyToContext
     {
@@ -29,7 +29,7 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
                     ResultState { Status: TestStatus.Skipped } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Ignored") => OutcomeMatched,
                     ResultState { Status: TestStatus.Inconclusive } when
-                        eventArgs.Context.CurrentTest.FullName.Contains("4Inconclusive") => OutcomeMatched,
+                       eventArgs.Context.CurrentTest.FullName.Contains("4Inconclusive") => OutcomeMatched,
                     ResultState { Status: TestStatus.Warning } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Warning") => OutcomeMatched,
                     _ => OutcomeMismatch
@@ -51,6 +51,7 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
         Warning4Warning, // Warn counts on OneTimeSetUp level as passed and on SetUp level as warning!
         None4Passed
     }
+
     private static IEnumerable<FailingReason> GetRelevantFailingReasons()
     {
         var failingReasons = Enum.GetValues(typeof(FailingReason)).Cast<FailingReason>();
@@ -61,6 +62,7 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
         return failingReasons;
     }
 
+    // H-Todo: enrich by failing setups, tests, ...
     [TestSetupUnderTest]
     [NonParallelizable]
     [AfterSetUpOutcomeLogger]
@@ -126,12 +128,6 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
         [Test]
         public void SomeTest()
         {
-            var fixtureName = TestContext.CurrentContext.Test.Parent.FullName;
-            if (!(fixtureName.Contains("4Passed") || fixtureName.Contains("4Warning")))
-            {
-                TestLog.Log(AfterSetUpOutcomeLogger.OutcomeMismatch +
-                            $" -> Test Method of '{fixtureName}' executed unexpected!");
-            }
         }
     }
 

@@ -43,7 +43,9 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
         public class TestUnderTest
         {
             [Test, ActivateHookThrowingException]
-            public void TestPasses() { }
+            public void TestPasses()
+            {
+            }
         }
 
         [Test]

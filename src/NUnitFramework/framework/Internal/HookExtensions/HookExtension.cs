@@ -31,12 +31,30 @@ public class HookExtension
     private AsyncEventHandler<TestHookIMethodEventArgs> _invokeBeforeAnyTearDowns;
     private AsyncEventHandler<TestHookIMethodEventArgs> _invokeAfterAnyTearDowns;
 
-    internal AsyncEvent<TestHookIMethodEventArgs> BeforeAnySetUps { get; set; }
-    internal AsyncEvent<TestHookIMethodEventArgs> AfterAnySetUps { get; set; }
-    internal AsyncEvent<TestHookTestMethodEventArgs> BeforeTest { get; set; }
-    internal AsyncEvent<TestHookTestMethodEventArgs> AfterTest { get; set; }
-    internal AsyncEvent<TestHookIMethodEventArgs> BeforeAnyTearDowns { get; set; }
-    internal AsyncEvent<TestHookIMethodEventArgs> AfterAnyTearDowns { get; set; }
+    /// <summary>
+    /// Gets or sets the hook event that is triggered before any setup methods are executed.
+    /// </summary>
+    public AsyncEvent<TestHookIMethodEventArgs> BeforeAnySetUps { get; set; }
+    /// <summary>
+    /// Gets or sets the hook event that is triggered after any setup methods are executed.
+    /// </summary>
+    public AsyncEvent<TestHookIMethodEventArgs> AfterAnySetUps { get; set; }
+    /// <summary>
+    /// Gets or sets the hook event that is triggered before a test method is executed.
+    /// </summary>
+    public AsyncEvent<TestHookTestMethodEventArgs> BeforeTest { get; set; }
+    /// <summary>
+    /// Gets or sets the hook event that is triggered after a test method is executed.
+    /// </summary>
+    public AsyncEvent<TestHookTestMethodEventArgs> AfterTest { get; set; }
+    /// <summary>
+    /// Gets or sets the hook event that is triggered before any teardown methods are executed.
+    /// </summary>
+    public AsyncEvent<TestHookIMethodEventArgs> BeforeAnyTearDowns { get; set; }
+    /// <summary>
+    /// Gets or sets the hook event that is triggered after any teardown methods are executed.
+    /// </summary>
+    public AsyncEvent<TestHookIMethodEventArgs> AfterAnyTearDowns { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HookExtension"/> class by copying hooks from another instance.
