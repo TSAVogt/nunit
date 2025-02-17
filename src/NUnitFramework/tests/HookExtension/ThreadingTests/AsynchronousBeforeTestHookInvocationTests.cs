@@ -14,6 +14,8 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
 {
     internal class ActivateMultipleAsynchronousBeforeTestHooks : NUnitAttribute, IApplyToContext
     {
+        public static TaskCompletionSource<bool> StartSignal = new();
+
         public virtual void ApplyToContext(TestExecutionContext context)
         {
             context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
@@ -22,7 +24,11 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
                                     .CurrentTest.Properties
                                     .Add("BeforeTestHook_1_ThreadId", Thread.CurrentThread.ManagedThreadId);
 
-                await Task.Delay(1);
+                // Wait for all tasks to be scheduled before proceeding
+                await StartSignal.Task;
+
+                // Some work
+                await Task.Delay(100);
             });
 
             context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
@@ -31,7 +37,11 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
                                     .CurrentTest.Properties
                                     .Add("BeforeTestHook_2_ThreadId", Thread.CurrentThread.ManagedThreadId);
 
-                await Task.Delay(1);
+                // Wait for all tasks to be scheduled before proceeding
+                await StartSignal.Task;
+
+                // Some work
+                await Task.Delay(100);
             });
         }
     }
@@ -69,10 +79,11 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
         }
 
         [Test]
-        [Parallelizable]
-        [Explicit("Thread IDs is not a good way to test")]
+        [NonParallelizable]
         public void AsynchronousHookInvocation_HookExecutesInSeparateThreads()
         {
+            ActivateMultipleAsynchronousBeforeTestHooks.StartSignal.SetResult(true);
+
             var testResult = TestsUnderTest.Execute();
 
             Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(1));
