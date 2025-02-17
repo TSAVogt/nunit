@@ -45,6 +45,8 @@ namespace NUnit.Framework.Internal.HookExtensions
                 _handlers.Add(asyncHandler);
         }
 
+        // H-ToDo: Add new API AddAsyncHandler.
+
         private Task Invoke(object? sender, TEventArgs e)
         {
             if (!_handlers.Any())

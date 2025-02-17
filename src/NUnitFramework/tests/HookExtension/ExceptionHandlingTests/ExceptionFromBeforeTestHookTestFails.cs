@@ -29,6 +29,18 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
         }
     }
 
+    internal class ActivateAsyncBeforeTestHookThrowingException2 : NUnitAttribute, IApplyToContext
+    {
+        public virtual void ApplyToContext(TestExecutionContext context)
+        {
+            context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
+            {
+                await Task.Delay(1);
+                throw new Exception("Asynchronous BeforeTestHook crashed!!");
+            });
+        }
+    }
+
     internal class ExceptionFromBeforeTestHookTestFails
     {
         [TestSetupUnderTest]
@@ -44,6 +56,12 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
              ActivateBeforeTestHookThrowingException,
              ActivateAsyncBeforeTestHookThrowingException]
             public void ExceptionFromMultipleBeforeTestHooksTestResultIsSetToFailed() { }
+
+            [Test,
+             ActivateBeforeTestHookThrowingException,
+             ActivateAsyncBeforeTestHookThrowingException,
+             ActivateAsyncBeforeTestHookThrowingException2]
+            public void ExceptionFromMultipleBeforeTestHooksTestResultIsSetToFailed2() { }
         }
 
         [Test]
@@ -56,7 +74,7 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
             Assert.That(result.TestRunResult.Skipped, Is.EqualTo(0));
 
             // overall test result
-            Assert.That(result.TestRunResult.Failed, Is.EqualTo(3));
+            Assert.That(result.TestRunResult.Failed, Is.EqualTo(4));
 
             foreach (var testCase in result.TestRunResult.TestCases)
             {
