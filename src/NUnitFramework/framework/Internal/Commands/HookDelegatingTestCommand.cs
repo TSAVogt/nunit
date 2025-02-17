@@ -26,7 +26,7 @@ namespace NUnit.Framework.Internal.Commands
         {
             try
             {
-                context.HookExtension?.OnBeforeTest(context);
+                context.HookExtension?.OnBeforeTest(context).GetAwaiter().GetResult();
                 innerCommand.Execute(context);
             }
             catch (Exception ex)
