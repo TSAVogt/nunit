@@ -9,32 +9,29 @@ using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
 {
-    internal class ActivateTestFailureHandlingHook : NUnitAttribute, IApplyToContext
+    internal class ActivateAfterTestHook : NUnitAttribute, IApplyToContext
     {
         public virtual void ApplyToContext(TestExecutionContext context)
         {
             context?.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
             {
-                if (TestExecutionContext.CurrentContext.CurrentResult.Message.Contains(nameof(NotImplementedException)))
-                    TestExecutionContext.CurrentContext.CurrentTest.Properties.Add("NotImplementedException_SyncHook", "HandledSync");
+                TestExecutionContext.CurrentContext.CurrentTest.Properties.Add("NotImplementedException_SyncHook", "HandledSync");
             });
 
             context?.HookExtension?.AfterTest.AddHandler(async (sender, eventArgs) =>
             {
-                if (TestExecutionContext.CurrentContext.CurrentResult.Message.Contains(nameof(NotImplementedException)))
-                    TestExecutionContext.CurrentContext.CurrentTest.Properties.Add("NotImplementedException_AsyncHook", "HandledAsync");
-
+                TestExecutionContext.CurrentContext.CurrentTest.Properties.Add("NotImplementedException_AsyncHook", "HandledAsync"); 
                 await Task.Delay(1);
             });
         }
     }
 
-    internal class HooksExecuteAfterExceptionFromTest
+    internal class AfterTestHookExecutesAfterExceptionFromTest
     {
-        [TestSetupUnderTest, ActivateTestFailureHandlingHook]
+        [TestSetupUnderTest]
         public class TestUnderTest
         {
-            [Test]
+            [Test, ActivateAfterTestHook]
             public void TestFails_WithException()
             {
                 throw new NotImplementedException();

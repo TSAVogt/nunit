@@ -1,24 +1,26 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
+using NUnit.Framework.Legacy;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
 {
-    internal class ActivateAsynchronousHook : NUnitAttribute, IApplyToContext
+    internal class ActivateMultipleAsynchronousHooks : NUnitAttribute, IApplyToContext
     {
         public virtual void ApplyToContext(TestExecutionContext context)
         {
-            context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
+            context?.HookExtension?.AfterTest.AddHandler(async (sender, eventArgs) =>
             {
                 TestExecutionContext.CurrentContext
                                     .CurrentTest.Properties
-                                    .Add("BeforeTestHook_ThreadId", Thread.CurrentThread.ManagedThreadId);
+                                    .Add("AfterTestHook_1_ThreadId", Thread.CurrentThread.ManagedThreadId);
 
                 await Task.Delay(1);
             });
@@ -27,14 +29,14 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
             {
                 TestExecutionContext.CurrentContext
                                     .CurrentTest.Properties
-                                    .Add("AfterTestHook_ThreadId", Thread.CurrentThread.ManagedThreadId);
+                                    .Add("AfterTestHook_2_ThreadId", Thread.CurrentThread.ManagedThreadId);
 
                 await Task.Delay(1);
             });
         }
     }
 
-    internal class AsynchronousHookInvocationTests
+    internal class AsynchronousAfterHookInvocationTests
     {
         [TestSetupUnderTest]
         public class TestUnderTest
@@ -47,19 +49,19 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
                                     .Add("TestThreadId", Thread.CurrentThread.ManagedThreadId);
             }
 
-            [Test, ActivateAsynchronousHook]
+            [Test, ActivateMultipleAsynchronousHooks]
             public void TestPasses_WithAssertPass()
             {
                 Assert.Pass("Test passed.");
             }
 
-            [Test, ActivateAsynchronousHook]
+            [Test, ActivateMultipleAsynchronousHooks]
             public void TestFails_WithAssertFail()
             {
                 Assert.Fail("Test failed with Assert.Fail");
             }
 
-            [Test, ActivateAsynchronousHook]
+            [Test, ActivateMultipleAsynchronousHooks]
             public void TestFails_WithException()
             {
                 throw new Exception("Test failed with Exception");
@@ -67,10 +69,9 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
         }
 
         [Test]
-        [NonParallelizable]
-        [Explicit("Is it a valid requirement(from discussion thread) that:" +
-                  " the hooks must be executing in the same thread as test itself because of usage of async-wait? ")]
-        public void AsynchronousHookInvocation_HookExecutesInSeparateThread()
+        [Parallelizable]
+        [Explicit("Thread IDs is not a good way to test")]
+        public void AsynchronousHookInvocation_HookExecutesInSeparateThreads()
         {
             var testResult = TestsUnderTest.Execute();
 
@@ -80,11 +81,17 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
             foreach (var testCase in testResult.TestRunResult.TestCases)
             {
                 var testThreadId = int.Parse(testCase.Properties["TestThreadId"].First());
-                var beforeTestHookThreadId = int.Parse(testCase.Properties["BeforeTestHook_ThreadId"].First());
-                var afterTestHookThreadId = int.Parse(testCase.Properties["AfterTestHook_ThreadId"].First());
 
-                Assert.That(testThreadId, !Is.EqualTo(beforeTestHookThreadId));
-                Assert.That(testThreadId, !Is.EqualTo(afterTestHookThreadId));
+                var afterTestHook1ThreadId = int.Parse(testCase.Properties["AfterTestHook_1_ThreadId"].First());
+                var afterTestHook2ThreadId = int.Parse(testCase.Properties["AfterTestHook_2_ThreadId"].First());
+
+                CollectionAssert.AllItemsAreUnique(new List<int>()
+                {
+                    testThreadId,
+                    
+                    afterTestHook1ThreadId,
+                    afterTestHook2ThreadId
+                });
             }
         }
     }

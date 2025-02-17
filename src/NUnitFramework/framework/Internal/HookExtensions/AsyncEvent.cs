@@ -73,7 +73,10 @@ namespace NUnit.Framework.Internal.HookExtensions
                 }
                 else if (handler is AsyncEventHandler<TEventArgs> asyncHandler)
                 {
-                    tasks.Add(Task.Run(() => asyncHandler(sender, e)));
+                    tasks.Add(Task.Run(async () =>
+                    {
+                        await asyncHandler(sender, e);
+                    }));
                 }
             }
 

@@ -1,6 +1,7 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework.Interfaces;
@@ -76,9 +77,8 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
                 var beforeTestHookThreadId = int.Parse(testCase.Properties["BeforeTestHook_ThreadId"].First());
                 var afterTestHookThreadId = int.Parse(testCase.Properties["AfterTestHook_ThreadId"].First());
 
-                Assert.That(testThreadId, Is.EqualTo(beforeTestHookThreadId));
-                Assert.That(testThreadId, Is.EqualTo(afterTestHookThreadId));
-                Assert.That(beforeTestHookThreadId, Is.EqualTo(afterTestHookThreadId));
+                Assert.That((new List<int>() { testThreadId, beforeTestHookThreadId, afterTestHookThreadId }).All
+                (n => n == testThreadId));
             }
         }
     }
