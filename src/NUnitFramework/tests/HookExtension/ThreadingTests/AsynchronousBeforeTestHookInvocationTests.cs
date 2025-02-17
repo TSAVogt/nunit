@@ -80,7 +80,7 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
 
         [Test]
         [NonParallelizable]
-        [Explicit("Sporadic issue with Thread IDs")]
+        [Explicit("Thread IDs is not a good way to test. Are we testing dot net framework here??")]
         public void AsynchronousHookInvocation_HookExecutesInSeparateThreads()
         {
             ActivateMultipleAsynchronousBeforeTestHooks.StartSignal.SetResult(true);

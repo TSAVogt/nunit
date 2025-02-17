@@ -34,7 +34,9 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
 
         [Test]
         [NonParallelizable]
-        public void ExceptionFromAfterTestHook_DoesNotChangeTestResult()
+        [Explicit("Complete the requirement")]
+        // H-ToDo: Complete the requirement
+        public void ExceptionFromAfterTestHook_TestResultIsSetToFailed()
         {
             var testResult = TestsUnderTest.Execute();
 
@@ -49,6 +51,15 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
                     Assert.That(testCase.Result, Is.EqualTo("Passed"));
                 });
             }
+        }
+
+        [Test]
+        [NonParallelizable]
+        [Explicit("Complete the requirement")]
+        // H-ToDo: Complete the requirement
+        public void ExceptionFromAfterTestHook_ExceptionIsAvailableInTestContext()
+        {
+
         }
     }
 }

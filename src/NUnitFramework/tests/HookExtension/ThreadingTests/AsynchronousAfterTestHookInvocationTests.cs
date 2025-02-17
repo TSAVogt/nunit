@@ -70,7 +70,7 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
 
         [Test]
         [Parallelizable]
-        [Explicit("Thread IDs is not a good way to test")]
+        [Explicit("Thread IDs is not a good way to test. Are we testing dot net framework here??")]
         public void AsynchronousHookInvocation_HookExecutesInSeparateThreads()
         {
             var testResult = TestsUnderTest.Execute();
