@@ -9,9 +9,9 @@ using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
-public class AfterTearDownHooksEvaluateTestOutcomeTests
+public class AfterOneTimeOneTimeTearDownHooksEvaluateTestOutcomeTests
 {
-    public class AfterTearDownOutcomeLogger : NUnitAttribute, IApplyToContext
+    public class AfterOneTimeTearDownOutcomeLogger : NUnitAttribute, IApplyToContext
     {
         internal static readonly string OutcomeMatched = "Outcome Matched";
         internal static readonly string OutcomeMismatch = "Outcome Mismatch!!!";
@@ -48,7 +48,7 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
         IgnoreAssertion4Ignored,
         IgnoreException4Ignored,
         Inconclusive4Inconclusive,
-        Warning4Warning, // Warn counts on OneTimeTearDown level as passed and on TearDown level as warning!
+        Warning4Warning, // Warn counts on OneTimeOneTimeTearDown level as passed and on OneTimeTearDown level as warning!
         None4Passed
     }
 
@@ -58,15 +58,15 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
 
         // H-ToDo: remove before final checkin
         // Apply filtering
-        failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("Exception4Failed"));
+        //failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("Exception4Failed"));
         return failingReasons;
     }
 
     [TestSetupUnderTest]
     [NonParallelizable]
-    [AfterTearDownOutcomeLogger]
+    [AfterOneTimeTearDownOutcomeLogger]
     [TestFixtureSource(nameof(GetFixtureConfig))]
-    public class TestsUnderTestsWithDifferentTearDownOutcome
+    public class TestsUnderTestsWithDifferentOneTimeTearDownOutcome
     {
         private readonly FailingReason _failingReason;
 
@@ -78,13 +78,14 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
             }
         }
 
-        public TestsUnderTestsWithDifferentTearDownOutcome(FailingReason failingReason)
+        public TestsUnderTestsWithDifferentOneTimeTearDownOutcome(FailingReason failingReason)
         {
             _failingReason = failingReason;
         }
 
-        [TearDown]
-        public void TearDown()
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
             ExecuteFailingReason();
         }
@@ -94,7 +95,7 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
             switch (_failingReason)
             {
                 case FailingReason.Assertion4Failed:
-                    Assert.Fail("TearDown fails by Assertion_Failed.");
+                    Assert.Fail("OneTimeTearDown fails by Assertion_Failed.");
                     break;
                 case FailingReason.MultiAssertion4Failed:
                     Assert.Multiple(() =>
@@ -104,19 +105,19 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
                     });
                     break;
                 case FailingReason.Exception4Failed:
-                    throw new Exception("TearDown throwing an exception.");
+                    throw new Exception("OneTimeTearDown throwing an exception.");
                 case FailingReason.None4Passed:
                     break;
                 case FailingReason.IgnoreAssertion4Ignored:
-                    Assert.Ignore("TearDown ignored by Assert.Ignore.");
+                    Assert.Ignore("OneTimeTearDown ignored by Assert.Ignore.");
                     break;
                 case FailingReason.IgnoreException4Ignored:
-                    throw new IgnoreException("TearDown ignored by IgnoreException.");
+                    throw new IgnoreException("OneTimeTearDown ignored by IgnoreException.");
                 case FailingReason.Inconclusive4Inconclusive:
-                    Assert.Inconclusive("TearDown ignored by Assert.Inconclusive.");
+                    Assert.Inconclusive("OneTimeTearDown ignored by Assert.Inconclusive.");
                     break;
                 case FailingReason.Warning4Warning:
-                    Assert.Warn("TearDown with warning.");
+                    Assert.Warn("OneTimeTearDown with warning.");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -131,7 +132,7 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
 
     [Test]
     [NonParallelizable]
-    public void CheckTearDownOutcomes()
+    public void CheckOneTimeTearDownOutcomes()
     {
         var testResult = TestsUnderTest.Execute();
 
@@ -139,12 +140,10 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
         {
             //foreach (string log in testResult.Logs)
             //{
-            //    Assert.That(log, Does.Not.Contain(AfterSetUpOutcomeLogger.OutcomeMismatch));
+            //    Assert.That(log, Does.Not.Contain(AfterOneTimeTearDownOutcomeLogger.OutcomeMismatch));
             //}
 
-            int numberOfIgnoredOrInconclusive = GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Ignored") || reason.ToString().EndsWith("4Inconclusive"));
-            Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Passed"))));
-            Assert.That(testResult.TestRunResult.Failed, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Failed")) + numberOfIgnoredOrInconclusive));
+            Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(GetRelevantFailingReasons().Count()));
             Assert.That(testResult.TestRunResult.Total, Is.EqualTo(GetRelevantFailingReasons().Count()));
         });
     }
