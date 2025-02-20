@@ -58,7 +58,7 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
 
         // H-ToDo: remove before final checkin
         // Apply filtering
-        failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("Exception4Failed"));
+        failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("MultiAssertion4Failed"));
         return failingReasons;
     }
 
@@ -101,6 +101,11 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
                     {
                         Assert.Fail("1st failure");
                         Assert.Fail("2nd failure");
+                        Assert.Multiple(() =>
+                        {
+                            Assert.That(true, Is.True, "Assertion that is not failing.");
+                            Assert.Fail("inner failing failure");
+                        });
                     });
                     break;
                 case FailingReason.Exception4Failed:
@@ -137,10 +142,10 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
 
         Assert.Multiple(() =>
         {
-            //foreach (string log in testResult.Logs)
-            //{
-            //    Assert.That(log, Does.Not.Contain(AfterSetUpOutcomeLogger.OutcomeMismatch));
-            //}
+            foreach (string log in testResult.Logs)
+            {
+                Assert.That(log, Does.Not.Contain(AfterTearDownOutcomeLogger.OutcomeMismatch));
+            }
 
             int numberOfIgnoredOrInconclusive = GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Ignored") || reason.ToString().EndsWith("4Inconclusive"));
             Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Passed"))));

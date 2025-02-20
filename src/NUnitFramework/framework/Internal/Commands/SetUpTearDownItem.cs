@@ -129,6 +129,10 @@ namespace NUnit.Framework.Internal.Commands
                             context.HookExtension?.OnBeforeAnyTearDowns(context, _tearDownMethods[index]);
                             RunSetUpOrTearDownMethod(context, _tearDownMethods[index]);
                         }
+                        catch (Exception ex)
+                        {
+                            context.CurrentResult.RecordTearDownException(ex);
+                        }
                         finally
                         {
                             context.HookExtension?.OnAfterAnyTearDowns(context, _tearDownMethods[index]);
