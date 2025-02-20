@@ -53,15 +53,5 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
                 Assert.That(testCase.Properties["NotImplementedException_AsyncHook"].First(), Is.EqualTo("HandledAsync"));
             }
         }
-
-        [Test]
-        [NonParallelizable]
-        [Explicit("Complete requirement")]
-        // H-ToDo: Complete the requirement
-        public void AllAfterTestHooksShouldExecuteBeforeProceedingFurther()
-        {
-
-        }
     }
-
 }
