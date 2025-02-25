@@ -6,6 +6,7 @@ using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
+using TestResult = NUnit.Framework.Internal.TestResult;
 
 namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
@@ -18,9 +19,31 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
 
         public void ApplyToContext(TestExecutionContext context)
         {
+            TestResult beforeHookTestResult = null;
+            context.HookExtension?.BeforeAnySetUps.AddHandler((sender, eventArgs) =>
+            {
+                beforeHookTestResult = eventArgs.Context.CurrentResult;
+            });
+
             context.HookExtension?.AfterAnySetUps.AddHandler((sender, eventArgs) =>
             {
-                string outcomeMatchStatement = eventArgs.Context.CurrentResult.ResultState switch
+                TestResult setUpTestResult = beforeHookTestResult is null
+                    ? eventArgs.Context.CurrentResult
+                    : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
+
+                if (eventArgs.ExceptionContext is not null)
+                {
+                    setUpTestResult = setUpTestResult.Clone();
+                    setUpTestResult.RecordException(eventArgs.ExceptionContext);
+                }
+                else if (setUpTestResult.AssertionResults.Count > 0)
+                {
+                    // Warnings needs to be treated differently.
+                    setUpTestResult = setUpTestResult.Clone();
+                    setUpTestResult.RecordTestCompletion();
+                }
+
+                string outcomeMatchStatement = setUpTestResult.ResultState switch
                 {
                     ResultState { Status: TestStatus.Failed } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Failed") => OutcomeMatched,

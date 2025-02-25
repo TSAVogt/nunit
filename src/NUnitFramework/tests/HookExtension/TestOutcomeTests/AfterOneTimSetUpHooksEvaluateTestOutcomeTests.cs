@@ -6,6 +6,7 @@ using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
+using TestResult = NUnit.Framework.Internal.TestResult;
 
 namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
@@ -19,9 +20,37 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
 
         public void ApplyToContext(TestExecutionContext context)
         {
+            TestResult beforeHookTestResult = null;
+            context.HookExtension?.BeforeAnySetUps.AddHandler((sender, eventArgs) =>
+            {
+                beforeHookTestResult = eventArgs.Context.CurrentResult;
+            });
+
             context.HookExtension?.AfterAnySetUps.AddHandler((sender, eventArgs) =>
             {
-                string outcomeMatchStatement = eventArgs.Context.CurrentResult.ResultState switch
+                TestResult oneTimeSetUpTestResult = beforeHookTestResult is null
+                    ? eventArgs.Context.CurrentResult
+                    : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
+
+                if (eventArgs.ExceptionContext is not null)
+                {
+                    oneTimeSetUpTestResult = oneTimeSetUpTestResult.Clone();
+                    oneTimeSetUpTestResult.RecordException(eventArgs.ExceptionContext);
+                }
+                else if (oneTimeSetUpTestResult.AssertionResults.Count > 0)
+                {
+                    // Warnings needs to be treated differently.
+                    oneTimeSetUpTestResult = oneTimeSetUpTestResult.Clone();
+                    oneTimeSetUpTestResult.RecordTestCompletion();
+                }
+
+                // special handling for warnings
+                if (oneTimeSetUpTestResult.ResultState.Status == TestStatus.Warning)
+                {
+                    oneTimeSetUpTestResult.SetResult(ResultState.Success);
+                }
+
+                string outcomeMatchStatement = oneTimeSetUpTestResult.ResultState switch
                 {
                     ResultState { Status: TestStatus.Failed } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Failed") => OutcomeMatched,
