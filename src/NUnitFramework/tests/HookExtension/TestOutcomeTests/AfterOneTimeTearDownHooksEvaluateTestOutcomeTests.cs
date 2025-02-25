@@ -6,6 +6,7 @@ using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
+using TestResult = NUnit.Framework.Internal.TestResult;
 
 namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
@@ -18,9 +19,32 @@ public class AfterOneTimeOneTimeTearDownHooksEvaluateTestOutcomeTests
 
         public void ApplyToContext(TestExecutionContext context)
         {
+            TestResult beforeHookTestResult = null;
+            context.HookExtension?.BeforeAnyTearDowns.AddHandler((sender, eventArgs) =>
+            {
+                beforeHookTestResult = eventArgs.Context.CurrentResult;
+            });
+
             context.HookExtension?.AfterAnyTearDowns.AddHandler((sender, eventArgs) =>
             {
-                string outcomeMatchStatement = eventArgs.Context.CurrentResult.ResultState switch
+                TestResult oneTimeTearDownTestResult = beforeHookTestResult is null
+                    ? eventArgs.Context.CurrentResult
+                    : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
+
+                if (eventArgs.ExceptionContext is not null)
+                {
+                    oneTimeTearDownTestResult = oneTimeTearDownTestResult.Clone();
+                    oneTimeTearDownTestResult.RecordException(eventArgs.ExceptionContext);
+                }
+                else if (oneTimeTearDownTestResult.AssertionResults.Count > 0)
+                {
+                    // Warnings needs to be treated differently.
+                    oneTimeTearDownTestResult = oneTimeTearDownTestResult.Clone();
+                    oneTimeTearDownTestResult.RecordTestCompletion();
+                }
+
+                string outcomeMatchStatement = oneTimeTearDownTestResult.ResultState switch
+
                 {
                     ResultState { Status: TestStatus.Failed } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Failed") => OutcomeMatched,
@@ -138,10 +162,10 @@ public class AfterOneTimeOneTimeTearDownHooksEvaluateTestOutcomeTests
 
         Assert.Multiple(() =>
         {
-            //foreach (string log in testResult.Logs)
-            //{
-            //    Assert.That(log, Does.Not.Contain(AfterOneTimeTearDownOutcomeLogger.OutcomeMismatch));
-            //}
+            foreach (string log in testResult.Logs)
+            {
+                Assert.That(log, Does.Not.Contain(AfterOneTimeTearDownOutcomeLogger.OutcomeMismatch));
+            }
 
             Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(GetRelevantFailingReasons().Count()));
             Assert.That(testResult.TestRunResult.Total, Is.EqualTo(GetRelevantFailingReasons().Count()));

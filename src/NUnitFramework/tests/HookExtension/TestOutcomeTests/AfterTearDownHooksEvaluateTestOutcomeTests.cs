@@ -27,28 +27,29 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
 
             context.HookExtension?.AfterAnyTearDowns.AddHandler((sender, eventArgs) =>
             {
-                var tearDownTestResult = eventArgs.Context.CurrentResult;
-                if (eventArgs.ExceptionContext != null)
+                TestResult tearDownTestResult = beforeHookTestResult is null
+                    ? eventArgs.Context.CurrentResult
+                    : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
+
+                if (eventArgs.ExceptionContext is not null)
                 {
                     tearDownTestResult = tearDownTestResult.Clone();
                     tearDownTestResult.RecordException(eventArgs.ExceptionContext);
-                } else if (tearDownTestResult.AssertionResults.Count > 0)
+                }
+                else if (tearDownTestResult.AssertionResults.Count > 0)
                 {
+                    // Warnings needs to be treated differently.
                     tearDownTestResult = tearDownTestResult.Clone();
                     tearDownTestResult.RecordTestCompletion();
                 }
+
                 string outcomeMatchStatement = tearDownTestResult.ResultState switch
                 {
-                    ResultState { Status: TestStatus.Failed } when
-                        eventArgs.Context.CurrentTest.FullName.Contains("4Failed") => OutcomeMatched,
-                    ResultState { Status: TestStatus.Passed } when
-                        eventArgs.Context.CurrentTest.FullName.Contains("4Passed") => OutcomeMatched,
-                    ResultState { Status: TestStatus.Skipped } when
-                        eventArgs.Context.CurrentTest.FullName.Contains("4Ignored") => OutcomeMatched,
-                    ResultState { Status: TestStatus.Inconclusive } when
-                       eventArgs.Context.CurrentTest.FullName.Contains("4Inconclusive") => OutcomeMatched,
-                    ResultState { Status: TestStatus.Warning } when
-                        eventArgs.Context.CurrentTest.FullName.Contains("4Warning") => OutcomeMatched,
+                    ResultState { Status: TestStatus.Failed } when eventArgs.Context.CurrentTest.FullName.Contains("4Failed") => OutcomeMatched,
+                    ResultState { Status: TestStatus.Passed } when eventArgs.Context.CurrentTest.FullName.Contains("4Passed") => OutcomeMatched,
+                    ResultState { Status: TestStatus.Skipped } when eventArgs.Context.CurrentTest.FullName.Contains("4Ignored") => OutcomeMatched,
+                    ResultState { Status: TestStatus.Inconclusive } when eventArgs.Context.CurrentTest.FullName.Contains("4Inconclusive") => OutcomeMatched,
+                    ResultState { Status: TestStatus.Warning } when eventArgs.Context.CurrentTest.FullName.Contains("4Warning") => OutcomeMatched,
                     _ => OutcomeMismatch
                 };
 
