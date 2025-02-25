@@ -421,6 +421,56 @@ namespace NUnit.Framework.Internal
         public abstract TestResult Clone();
 
         /// <summary>
+        /// Calculates the delta between the current TestResult and a previous TestResult.
+        /// This method should be used in the context of hook extensions if you need to
+        /// get the test result for a hooked method.
+        /// Example: The test result for SetUp, TestMethod and TearDown is the same instance.
+        /// If you need to know the separated test outcome for the TearDown method, you can
+        /// create a clone of the TestResult in the before hook and calculate the delta the
+        /// in the after hook and use this result as the "TearDown result".
+        /// </summary>
+        /// <param name="previous">The previous TestResult to compare against.</param>
+        /// <returns>A new TestResult representing the delta between the current and previous TestResults.</returns>
+        public TestResult CalculateDeltaWithPrevious(TestResult previous)
+        {
+            var deltaResult = Clone();
+
+            // Calculate the delta for ResultState
+            if (ResultState != previous.ResultState)
+            {
+                deltaResult.SetResult(ResultState, Message, StackTrace);
+            }
+            else
+            {
+                deltaResult.SetResult(ResultState.Success);
+            }
+
+            // Calculate the delta for AssertCount
+            deltaResult.AssertCount = AssertCount - previous.AssertCount;
+
+            // Calculate the delta for AssertionResults
+            foreach (var assertion in AssertionResults.Except(previous.AssertionResults))
+            {
+                deltaResult.RecordAssertion(assertion);
+            }
+
+            // Calculate the delta for TestAttachments
+            foreach (var attachment in TestAttachments.Except(previous.TestAttachments))
+            {
+                deltaResult.AddTestAttachment(attachment);
+            }
+
+            // H-TODO: check if calculation in needed or if just the latest output can be used
+            // Calculate the delta for Output
+            if (Output != previous.Output)
+            {
+                deltaResult.OutWriter.Write(Output.Substring(previous.Output.Length));
+            }
+
+            return deltaResult;
+        }
+
+        /// <summary>
         /// Set the result of the test
         /// </summary>
         /// <param name="resultState">The ResultState to use in the result</param>
