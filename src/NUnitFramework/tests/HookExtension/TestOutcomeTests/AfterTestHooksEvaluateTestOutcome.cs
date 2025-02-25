@@ -109,14 +109,11 @@ public class AfterTestHooksEvaluateTestOutcomeTests
 
         Assert.That(testResult.Logs.Length, Is.Not.EqualTo(0));
         Assert.Multiple(() =>
+        {
+            foreach (string logLine in testResult.Logs)
             {
-                foreach (string logLine in testResult.Logs)
-                {
-                    Assert.That(logLine, Does.StartWith(AfterTestOutcomeLogger.OutcomeMatched));
-                }
-
-                // H-TODO: clean up warning outcome. Just added for understanding how Assert.Warn is handled. See also AfterSetUpHooksEvaluateTestOutcomeTests.cs
-                Assert.That(testResult.TestRunResult.TestCases.Where(t=>t.Name.StartsWith("Warning")).Single().Result, Is.EqualTo("Warning"));
-            });
+                Assert.That(logLine, Does.StartWith(AfterTestOutcomeLogger.OutcomeMatched));
+            }
+        });
     }
 }
