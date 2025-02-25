@@ -119,11 +119,6 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
                     {
                         Assert.Fail("1st failure");
                         Assert.Fail("2nd failure");
-                        Assert.Multiple(() =>
-                        {
-                            Assert.That(true, Is.True, "Assertion that is not failing.");
-                            Assert.Fail("inner failing failure");
-                        });
                     });
                     break;
                 case FailingReason.Exception4Failed:

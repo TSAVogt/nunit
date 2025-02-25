@@ -433,6 +433,7 @@ namespace NUnit.Framework.Internal
         /// <returns>A new TestResult representing the delta between the current and previous TestResults.</returns>
         public TestResult CalculateDeltaWithPrevious(TestResult previous)
         {
+            // H-TODO: test this method!!!
             var deltaResult = Clone();
 
             // Calculate the delta for ResultState
@@ -452,12 +453,6 @@ namespace NUnit.Framework.Internal
             foreach (var assertion in AssertionResults.Except(previous.AssertionResults))
             {
                 deltaResult.RecordAssertion(assertion);
-            }
-
-            // Calculate the delta for TestAttachments
-            foreach (var attachment in TestAttachments.Except(previous.TestAttachments))
-            {
-                deltaResult.AddTestAttachment(attachment);
             }
 
             // H-TODO: check if calculation in needed or if just the latest output can be used
