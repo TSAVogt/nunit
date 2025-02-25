@@ -131,12 +131,10 @@ namespace NUnit.Framework.Internal.Commands
                         }
                         catch (Exception ex)
                         {
-                            context.CurrentResult.RecordTearDownException(ex);
+                            context.HookExtension?.OnAfterAnyTearDowns(context, _tearDownMethods[index], ex);
+                            throw;
                         }
-                        finally
-                        {
-                            context.HookExtension?.OnAfterAnyTearDowns(context, _tearDownMethods[index]);
-                        }
+                        context.HookExtension?.OnAfterAnyTearDowns(context, _tearDownMethods[index]);
                     }
 
                     // If there are new assertion results here, they are warnings issued

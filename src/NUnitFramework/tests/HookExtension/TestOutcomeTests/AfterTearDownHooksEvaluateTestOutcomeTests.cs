@@ -6,6 +6,7 @@ using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
+using TestResult = NUnit.Framework.Internal.TestResult;
 
 namespace NUnit.Framework.Tests.HookExtension.TestOutcomeTests;
 
@@ -18,9 +19,25 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
 
         public void ApplyToContext(TestExecutionContext context)
         {
+            TestResult beforeHookTestResult = null;
+            context.HookExtension?.BeforeAnyTearDowns.AddHandler((sender, eventArgs) =>
+            {
+                beforeHookTestResult = eventArgs.Context.CurrentResult;
+            });
+
             context.HookExtension?.AfterAnyTearDowns.AddHandler((sender, eventArgs) =>
             {
-                string outcomeMatchStatement = eventArgs.Context.CurrentResult.ResultState switch
+                var tearDownTestResult = eventArgs.Context.CurrentResult;
+                if (eventArgs.ExceptionContext != null)
+                {
+                    tearDownTestResult = tearDownTestResult.Clone();
+                    tearDownTestResult.RecordException(eventArgs.ExceptionContext);
+                } else if (tearDownTestResult.AssertionResults.Count > 0)
+                {
+                    tearDownTestResult = tearDownTestResult.Clone();
+                    tearDownTestResult.RecordTestCompletion();
+                }
+                string outcomeMatchStatement = tearDownTestResult.ResultState switch
                 {
                     ResultState { Status: TestStatus.Failed } when
                         eventArgs.Context.CurrentTest.FullName.Contains("4Failed") => OutcomeMatched,
@@ -58,7 +75,7 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
 
         // H-ToDo: remove before final checkin
         // Apply filtering
-        failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("MultiAssertion4Failed"));
+        //failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("MultiAssertion4Failed"));
         return failingReasons;
     }
 
