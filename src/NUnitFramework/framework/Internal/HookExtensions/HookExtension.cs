@@ -1,5 +1,6 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework.Interfaces;
@@ -82,11 +83,11 @@ public class HookExtension
         }
     }
 
-    internal async Task OnAfterAnySetUps(TestExecutionContext context, IMethodInfo method)
+    internal async Task OnAfterAnySetUps(TestExecutionContext context, IMethodInfo method, Exception? exceptionContext = null)
     {
         try
         {
-            await _invokeAfterAnySetUps(this, new TestHookIMethodEventArgs(context, method));
+            await _invokeAfterAnySetUps(this, new TestHookIMethodEventArgs(context, method, exceptionContext));
         }
         catch
         {
@@ -106,11 +107,11 @@ public class HookExtension
         }
     }
 
-    internal async Task OnAfterTest(TestExecutionContext context)
+    internal async Task OnAfterTest(TestExecutionContext context, Exception? exceptionContext = null)
     {
         try
         {
-            await _invokeAfterTest(this, new TestHookTestMethodEventArgs(context));
+            await _invokeAfterTest(this, new TestHookTestMethodEventArgs(context, exceptionContext));
         }
         catch
         {
@@ -130,11 +131,11 @@ public class HookExtension
         }
     }
 
-    internal async Task OnAfterAnyTearDowns(TestExecutionContext context, IMethodInfo method)
+    internal async Task OnAfterAnyTearDowns(TestExecutionContext context, IMethodInfo method, Exception? exceptionContext = null)
     {
         try
         {
-            await _invokeAfterAnyTearDowns(this, new TestHookIMethodEventArgs(context, method));
+            await _invokeAfterAnyTearDowns(this, new TestHookIMethodEventArgs(context, method, exceptionContext));
         }
         catch
         {

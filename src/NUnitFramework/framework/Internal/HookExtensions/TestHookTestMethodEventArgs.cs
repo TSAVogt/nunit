@@ -13,14 +13,21 @@ namespace NUnit.Framework.Internal.HookExtensions
         /// Initializes a new instance of the <see cref="TestHookTestMethodEventArgs"/> class.
         /// </summary>
         /// <param name="context">The test execution context.</param>
-        public TestHookTestMethodEventArgs(TestExecutionContext context) : base()
+        /// <param name="exceptionContext">The exception context that was thrown during the method execution, if any.</param>
+        public TestHookTestMethodEventArgs(TestExecutionContext context, Exception? exceptionContext = null) : base()
         {
             Context = context;
+            ExceptionContext = exceptionContext;
         }
 
         /// <summary>
         /// Gets the test execution context.
         /// </summary>
         public TestExecutionContext Context { get; }
+
+        /// <summary>
+        /// Gets the exception context that was thrown during the method execution, if any.
+        /// </summary>
+        public Exception? ExceptionContext { get; }
     }
 }

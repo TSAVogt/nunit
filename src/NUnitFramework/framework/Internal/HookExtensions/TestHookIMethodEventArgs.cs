@@ -15,10 +15,12 @@ namespace NUnit.Framework.Internal.HookExtensions
         /// </summary>
         /// <param name="context">The test execution context.</param>
         /// <param name="method">The method information.</param>
-        public TestHookIMethodEventArgs(TestExecutionContext context, IMethodInfo method)
+        /// <param name="exceptionContext">The exception context that was thrown during the method execution, if any.</param>
+        public TestHookIMethodEventArgs(TestExecutionContext context, IMethodInfo method, Exception? exceptionContext = null)
         {
             Context = context;
             Method = method;
+            ExceptionContext = exceptionContext;
         }
 
         /// <summary>
@@ -30,5 +32,10 @@ namespace NUnit.Framework.Internal.HookExtensions
         /// Gets the method information.
         /// </summary>
         public IMethodInfo Method { get; }
+
+        /// <summary>
+        /// Gets the exception context that was thrown during the method execution, if any.
+        /// </summary>
+        public Exception? ExceptionContext { get; }
     }
 }
