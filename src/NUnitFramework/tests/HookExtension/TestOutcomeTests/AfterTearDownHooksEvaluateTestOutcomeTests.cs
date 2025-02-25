@@ -27,21 +27,8 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
 
             context.HookExtension?.AfterAnyTearDowns.AddHandler((sender, eventArgs) =>
             {
-                TestResult tearDownTestResult = beforeHookTestResult is null
-                    ? eventArgs.Context.CurrentResult
-                    : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
-
-                if (eventArgs.ExceptionContext is not null)
-                {
-                    tearDownTestResult = tearDownTestResult.Clone();
-                    tearDownTestResult.RecordException(eventArgs.ExceptionContext);
-                }
-                else if (tearDownTestResult.AssertionResults.Count > 0)
-                {
-                    // Warnings needs to be treated differently.
-                    tearDownTestResult = tearDownTestResult.Clone();
-                    tearDownTestResult.RecordTestCompletion();
-                }
+                TestResult tearDownTestResult
+                    = eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult, eventArgs.ExceptionContext);
 
                 string outcomeMatchStatement = tearDownTestResult.ResultState switch
                 {

@@ -27,21 +27,8 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
 
             context.HookExtension?.AfterAnySetUps.AddHandler((sender, eventArgs) =>
             {
-                TestResult setUpTestResult = beforeHookTestResult is null
-                    ? eventArgs.Context.CurrentResult
-                    : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
-
-                if (eventArgs.ExceptionContext is not null)
-                {
-                    setUpTestResult = setUpTestResult.Clone();
-                    setUpTestResult.RecordException(eventArgs.ExceptionContext);
-                }
-                else if (setUpTestResult.AssertionResults.Count > 0)
-                {
-                    // Warnings needs to be treated differently.
-                    setUpTestResult = setUpTestResult.Clone();
-                    setUpTestResult.RecordTestCompletion();
-                }
+                TestResult setUpTestResult
+                    = eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult, eventArgs.ExceptionContext);
 
                 string outcomeMatchStatement = setUpTestResult.ResultState switch
                 {

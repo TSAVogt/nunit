@@ -431,7 +431,7 @@ namespace NUnit.Framework.Internal
         /// </summary>
         /// <param name="previous">The previous TestResult to compare against.</param>
         /// <returns>A new TestResult representing the delta between the current and previous TestResults.</returns>
-        public TestResult CalculateDeltaWithPrevious(TestResult previous)
+        public TestResult CalculateDeltaWithPrevious(TestResult previous, Exception? exceptionContext = null)
         {
             // H-TODO: test this method!!!
             var deltaResult = Clone();
@@ -455,11 +455,21 @@ namespace NUnit.Framework.Internal
                 deltaResult.RecordAssertion(assertion);
             }
 
-            // H-TODO: check if calculation in needed or if just the latest output can be used
             // Calculate the delta for Output
             if (Output != previous.Output)
             {
                 deltaResult.OutWriter.Write(Output.Substring(previous.Output.Length));
+            }
+
+            // consider the exception context and warnings
+            if (exceptionContext is not null)
+            {
+                deltaResult.RecordException(exceptionContext);
+            }
+            else if (deltaResult.AssertionResults.Count > 0)
+            {
+                // Warnings needs to be treated differently.
+                deltaResult.RecordTestCompletion();
             }
 
             return deltaResult;

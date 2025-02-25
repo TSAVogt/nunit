@@ -1,6 +1,5 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
-using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
@@ -16,30 +15,17 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
     public void ApplyToContext(TestExecutionContext context)
     {
         TestResult beforeHookTestResult = null;
-        context.HookExtension?.BeforeAnyTearDowns.AddHandler((sender, eventArgs) =>
+        context.HookExtension?.BeforeTest.AddHandler((sender, eventArgs) =>
         {
             beforeHookTestResult = eventArgs.Context.CurrentResult;
         });
 
         context.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
         {
-            TestResult tearDownTestResult = beforeHookTestResult is null
-                ? eventArgs.Context.CurrentResult
-                : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
+            TestResult testResult
+                = eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult, eventArgs.ExceptionContext);
 
-            if (eventArgs.ExceptionContext is not null)
-            {
-                tearDownTestResult = tearDownTestResult.Clone();
-                tearDownTestResult.RecordException(eventArgs.ExceptionContext);
-            }
-            else if (tearDownTestResult.AssertionResults.Count > 0)
-            {
-                // Warnings needs to be treated differently.
-                tearDownTestResult = tearDownTestResult.Clone();
-                tearDownTestResult.RecordTestCompletion();
-            }
-
-            string outcomeMatchStatement = tearDownTestResult.ResultState switch
+            string outcomeMatchStatement = testResult.ResultState switch
             {
                 ResultState { Status: TestStatus.Failed } when
                     eventArgs.Context.CurrentTest.MethodName.StartsWith("FailedTest") => OutcomeMatched,
@@ -61,6 +47,7 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
 public class AfterTestHooksEvaluateTestOutcomeTests
 {
     [TestSetupUnderTest]
+    [NonParallelizable]
     [AfterTestOutcomeLogger]
     public class TestsUnderTestsWithMixedOutcome
     {

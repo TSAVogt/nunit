@@ -27,21 +27,8 @@ public class AfterOneTimeOneTimeTearDownHooksEvaluateTestOutcomeTests
 
             context.HookExtension?.AfterAnyTearDowns.AddHandler((sender, eventArgs) =>
             {
-                TestResult oneTimeTearDownTestResult = beforeHookTestResult is null
-                    ? eventArgs.Context.CurrentResult
-                    : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
-
-                if (eventArgs.ExceptionContext is not null)
-                {
-                    oneTimeTearDownTestResult = oneTimeTearDownTestResult.Clone();
-                    oneTimeTearDownTestResult.RecordException(eventArgs.ExceptionContext);
-                }
-                else if (oneTimeTearDownTestResult.AssertionResults.Count > 0)
-                {
-                    // Warnings needs to be treated differently.
-                    oneTimeTearDownTestResult = oneTimeTearDownTestResult.Clone();
-                    oneTimeTearDownTestResult.RecordTestCompletion();
-                }
+                TestResult oneTimeTearDownTestResult
+                    = eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult, eventArgs.ExceptionContext);
 
                 string outcomeMatchStatement = oneTimeTearDownTestResult.ResultState switch
 

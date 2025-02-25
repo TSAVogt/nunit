@@ -28,27 +28,8 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
 
             context.HookExtension?.AfterAnySetUps.AddHandler((sender, eventArgs) =>
             {
-                TestResult oneTimeSetUpTestResult = beforeHookTestResult is null
-                    ? eventArgs.Context.CurrentResult
-                    : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
-
-                if (eventArgs.ExceptionContext is not null)
-                {
-                    oneTimeSetUpTestResult = oneTimeSetUpTestResult.Clone();
-                    oneTimeSetUpTestResult.RecordException(eventArgs.ExceptionContext);
-                }
-                else if (oneTimeSetUpTestResult.AssertionResults.Count > 0)
-                {
-                    // Warnings needs to be treated differently.
-                    oneTimeSetUpTestResult = oneTimeSetUpTestResult.Clone();
-                    oneTimeSetUpTestResult.RecordTestCompletion();
-                }
-
-                // special handling for warnings
-                if (oneTimeSetUpTestResult.ResultState.Status == TestStatus.Warning)
-                {
-                    oneTimeSetUpTestResult.SetResult(ResultState.Success);
-                }
+                TestResult oneTimeSetUpTestResult 
+                = eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult, eventArgs.ExceptionContext);
 
                 string outcomeMatchStatement = oneTimeSetUpTestResult.ResultState switch
                 {
@@ -78,7 +59,7 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
         IgnoreAssertion4Ignored,
         IgnoreException4Ignored,
         Inconclusive4Inconclusive,
-        Warning4Passed, // Warn counts on OneTimeSetUp level as passed and on SetUp level as warning!
+        Warning4Warning, // Warn counts on OneTimeSetUp level as passed and on SetUp level as warning!
         None4Passed
     }
 
@@ -88,7 +69,7 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
 
         // H-ToDo: remove before final checkin
         // Apply filtering
-        //failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("4Passed"));
+        //failingReasons = failingReasons.Where(reason => reason.ToString().EndsWith("4Warning"));
         return failingReasons;
     }
 
@@ -145,7 +126,7 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
                 case FailingReason.Inconclusive4Inconclusive:
                     Assert.Inconclusive("OneTimeSetUp is inconclusive.");
                     break;
-                case FailingReason.Warning4Passed:
+                case FailingReason.Warning4Warning:
                     Assert.Warn("OneTimeSetUp with warning.");
                     break;
                 default:
@@ -180,11 +161,19 @@ public class AfterOneTimeSetUpHooksEvaluateTestOutcomeTests
 
             foreach (TestCase testCase in testResult.TestRunResult.TestCases)
             {
-                Assert.That(testCase.FullName,
-                    Does.Contain(testCase.Result == "Skipped" ? "Ignored" : testCase.Result));
+                string resultStatusPartOfTestName = testCase.FullName.Split('4').Last();
+
+                string expectedResult = resultStatusPartOfTestName switch
+                {
+                    "Ignored" => "Skipped",
+                    "Warning" => "Passed", // Only for OneTimeSetUp level!
+                    _ => resultStatusPartOfTestName
+                };
+
+                Assert.That(testCase.FullName, Does.Contain(expectedResult));
             }
-            // H-TODO: This asserts checks the assumption that an Assert.Warn will have a passed outcome.
-            Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Passed"))));
+
+            Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Passed") || reason.ToString().EndsWith("4Warning"))));
             Assert.That(testResult.TestRunResult.Failed, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Failed"))));
             Assert.That(testResult.TestRunResult.Skipped, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Ignored"))));
             Assert.That(testResult.TestRunResult.Total, Is.EqualTo(GetRelevantFailingReasons().Count()));
