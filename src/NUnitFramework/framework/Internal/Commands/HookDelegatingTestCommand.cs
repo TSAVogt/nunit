@@ -31,17 +31,7 @@ namespace NUnit.Framework.Internal.Commands
             }
             catch (Exception ex)
             {
-                TestResult originalTestResult = context.CurrentResult;
-                try
-                {
-                    context.CurrentResult = originalTestResult.Clone();
-                    context.CurrentResult.RecordException(ex);
-                    context.HookExtension?.OnAfterTest(context);
-                }
-                finally
-                {
-                    context.CurrentResult = originalTestResult;
-                }
+                context.HookExtension?.OnAfterTest(context, ex);
                 throw;
             }
             context.HookExtension?.OnAfterTest(context);

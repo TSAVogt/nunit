@@ -4,6 +4,7 @@ using System.Linq;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
+using TestResult = NUnit.Framework.Internal.TestResult;
 
 namespace NUnit.Framework.Tests.HookExtension;
 
@@ -14,9 +15,31 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
 
     public void ApplyToContext(TestExecutionContext context)
     {
+        TestResult beforeHookTestResult = null;
+        context.HookExtension?.BeforeAnyTearDowns.AddHandler((sender, eventArgs) =>
+        {
+            beforeHookTestResult = eventArgs.Context.CurrentResult;
+        });
+
         context.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
         {
-            string outcomeMatchStatement = eventArgs.Context.CurrentResult.ResultState switch
+            TestResult tearDownTestResult = beforeHookTestResult is null
+                ? eventArgs.Context.CurrentResult
+                : eventArgs.Context.CurrentResult.CalculateDeltaWithPrevious(beforeHookTestResult);
+
+            if (eventArgs.ExceptionContext is not null)
+            {
+                tearDownTestResult = tearDownTestResult.Clone();
+                tearDownTestResult.RecordException(eventArgs.ExceptionContext);
+            }
+            else if (tearDownTestResult.AssertionResults.Count > 0)
+            {
+                // Warnings needs to be treated differently.
+                tearDownTestResult = tearDownTestResult.Clone();
+                tearDownTestResult.RecordTestCompletion();
+            }
+
+            string outcomeMatchStatement = tearDownTestResult.ResultState switch
             {
                 ResultState { Status: TestStatus.Failed } when
                     eventArgs.Context.CurrentTest.MethodName.StartsWith("FailedTest") => OutcomeMatched,
