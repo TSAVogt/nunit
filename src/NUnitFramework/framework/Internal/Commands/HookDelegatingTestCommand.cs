@@ -24,6 +24,8 @@ namespace NUnit.Framework.Internal.Commands
         /// <returns>The result of the test execution.</returns>
         public override TestResult Execute(TestExecutionContext context)
         {
+            bool afterTestExecutedWithExceptionContext = false;
+
             try
             {
                 context.HookExtension?.OnBeforeTest(context).GetAwaiter().GetResult();
@@ -31,10 +33,17 @@ namespace NUnit.Framework.Internal.Commands
             }
             catch (Exception ex)
             {
-                context.HookExtension?.OnAfterTest(context, ex);
+                afterTestExecutedWithExceptionContext = true;
+                context.HookExtension?.OnAfterTest(context, ex).GetAwaiter().GetResult();
                 throw;
             }
-            context.HookExtension?.OnAfterTest(context);
+
+            // Ensure that after test hooks are not again executed when there are exceptions from inner command
+            if (!afterTestExecutedWithExceptionContext)
+            {
+                context.HookExtension?.OnAfterTest(context).GetAwaiter().GetResult();
+            }
+
             return context.CurrentResult;
         }
     }
