@@ -8,42 +8,57 @@ using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
 {
-    internal class ActivateAfterTestHooks : NUnitAttribute, IApplyToContext
+    internal class ActivateMultipleTestHooks : NUnitAttribute, IApplyToContext
     {
         public virtual void ApplyToContext(TestExecutionContext context)
         {
+            context?.HookExtension?.BeforeTest.AddHandler((sender, eventArgs) =>
+            {
+                TestLog.LogCurrentMethod("BeforeTest_Hook");
+            });
+
+            context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
+            {
+                await Task.Delay(100);
+                TestLog.LogCurrentMethod("BeforeTest_Hook");
+            });
+
             context?.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
             {
-                TestLog.LogCurrentMethod("AfterTestHook");
+                TestLog.LogCurrentMethod("AfterTest_Hook");
             });
 
             context?.HookExtension?.AfterTest.AddHandler(async (sender, eventArgs) =>
             {
                 await Task.Delay(100);
-                TestLog.LogCurrentMethod("AfterTestHook");
-            });
-
-            context?.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("AfterTestHook");
-                throw new Exception("After test hook crashed");
-            });
-
-            context?.HookExtension?.AfterTest.AddHandler(async (sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("AfterTestHook");
-                await Task.Delay(100);
-                throw new Exception("After test hook crashed");
+                TestLog.LogCurrentMethod("AfterTest_Hook");
             });
         }
     }
 
-    internal class ExecutionProceedsOnlyAfterAllAfterAfterTestHooksExecute
+    [AttributeUsage(AttributeTargets.Class)]
+    public class SomeTestActionAttribute : Attribute, ITestAction
+    {
+        public void BeforeTest(ITest test)
+        {
+            TestLog.LogCurrentMethod("BeforeTest_Action");
+        }
+
+        public void AfterTest(ITest test)
+        {
+            TestLog.LogCurrentMethod("AfterTest_Action");
+        }
+
+        public ActionTargets Targets { get; }
+    }
+
+    internal class ExecutionSequenceWithTestActionTests
     {
         [TestSetupUnderTest]
+        [SomeTestAction]
         public class TestUnderTest
         {
-            [Test, ActivateAfterTestHooks]
+            [Test, ActivateMultipleTestHooks]
             public void TestPasses()
             {
                 TestLog.LogCurrentMethod();
@@ -69,12 +84,18 @@ namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
             var testResult = TestsUnderTest.Execute();
 
             Assert.That(testResult.Logs, Is.EqualTo([
+                "BeforeTest_Action",
+                
+                "BeforeTest_Hook",
+                "BeforeTest_Hook",
+                
                 "TestPasses",
-                "AfterTestHook",
-                "AfterTestHook",
-                "AfterTestHook",
-                "AfterTestHook",
+
+                "AfterTest_Hook",
+                "AfterTest_Hook",
+
                 "TearDown",
+                "AfterTest_Action",
                 "OneTimeTearDown"
             ]));
         }
