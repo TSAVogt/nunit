@@ -3,9 +3,9 @@
 using NUnit.Framework.Internal;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
-namespace NUnit.Framework.Tests.HookExtension;
+namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence;
 
-public class TestRunHooksAreCalledBeforeTestIsExecuted
+public class ExecutionProceedsOnlyAfterAllBeforeTestHooksExecute
 {
     [TestSetupUnderTest]
     public class TestUnderTest
