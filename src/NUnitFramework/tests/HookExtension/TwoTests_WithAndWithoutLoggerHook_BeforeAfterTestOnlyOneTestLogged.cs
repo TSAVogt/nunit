@@ -35,6 +35,8 @@ namespace NUnit.Framework.Tests.HookExtension
                 $"- AfterTestCase({nameof(TestUnderTest.TestWithHookLogging)})",
                 nameof(TestUnderTest.TestWithoutHookLogging)
             }));
+
+            TestLog.Logs.Clear();
         }
     }
 }

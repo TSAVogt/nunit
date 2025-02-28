@@ -32,5 +32,7 @@ public class ExecutionProceedsOnlyAfterAllBeforeTestHooksExecute
             HookIdentifiers.BeforeTestHook,
             nameof(TestUnderTest.SomeTest)
         ]));
+
+        TestLog.Logs.Clear();
     }
 }

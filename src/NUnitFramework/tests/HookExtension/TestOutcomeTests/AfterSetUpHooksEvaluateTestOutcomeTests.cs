@@ -169,5 +169,7 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
             Assert.That(testResult.TestRunResult.Skipped, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Ignored"))));
             Assert.That(testResult.TestRunResult.Total, Is.EqualTo(GetRelevantFailingReasons().Count()));
         });
+
+        TestLog.Logs.Clear();
     }
 }

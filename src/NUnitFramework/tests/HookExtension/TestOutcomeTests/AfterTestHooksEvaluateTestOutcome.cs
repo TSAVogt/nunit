@@ -102,5 +102,7 @@ public class AfterTestHooksEvaluateTestOutcomeTests
                 Assert.That(logLine, Does.StartWith(AfterTestOutcomeLogger.OutcomeMatched));
             }
         });
+
+        TestLog.Logs.Clear();
     }
 }

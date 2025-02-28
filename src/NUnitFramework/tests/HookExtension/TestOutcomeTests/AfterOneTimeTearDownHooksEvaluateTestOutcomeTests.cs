@@ -159,5 +159,7 @@ public class AfterOneTimeOneTimeTearDownHooksEvaluateTestOutcomeTests
             Assert.That(testResult.TestRunResult.Passed, Is.EqualTo(GetRelevantFailingReasons().Count()));
             Assert.That(testResult.TestRunResult.Total, Is.EqualTo(GetRelevantFailingReasons().Count()));
         });
+
+        TestLog.Logs.Clear();
     }
 }

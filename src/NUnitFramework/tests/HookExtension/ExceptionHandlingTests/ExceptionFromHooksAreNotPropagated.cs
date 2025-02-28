@@ -61,6 +61,8 @@ namespace NUnit.Framework.Tests.HookExtension.ExceptionHandlingTests
                     Assert.That(testCase.Result, Is.EqualTo("Passed"));
                 });
             }
+
+            TestLog.Logs.Clear();
         }
     }
 }

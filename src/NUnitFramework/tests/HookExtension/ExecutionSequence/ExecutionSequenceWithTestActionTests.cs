@@ -71,6 +71,8 @@ namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
                 "AfterTest_Action",
                 nameof(TestUnderTest.OneTimeTearDown)
             ]));
+
+            TestLog.Logs.Clear();
         }
     }
 }

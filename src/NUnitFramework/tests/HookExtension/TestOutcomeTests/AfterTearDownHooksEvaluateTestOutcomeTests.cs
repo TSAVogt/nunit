@@ -154,5 +154,7 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
             Assert.That(testResult.TestRunResult.Failed, Is.EqualTo(GetRelevantFailingReasons().Count(reason => reason.ToString().EndsWith("4Failed")) + numberOfIgnoredOrInconclusive));
             Assert.That(testResult.TestRunResult.Total, Is.EqualTo(GetRelevantFailingReasons().Count()));
         });
+
+        TestLog.Logs.Clear();
     }
 }

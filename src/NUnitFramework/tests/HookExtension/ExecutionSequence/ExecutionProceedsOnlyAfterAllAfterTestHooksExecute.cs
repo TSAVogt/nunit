@@ -48,6 +48,8 @@ namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
                 nameof(TestUnderTest.TearDown),
                 nameof(TestUnderTest.OneTimeTearDown)
             ]));
+
+            TestLog.Logs.Clear();
         }
     }
 }
