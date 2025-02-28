@@ -13,6 +13,7 @@ namespace NUnit.Framework.Internal.HookExtensions
     public sealed class AsyncEvent<TEventArgs>
     {
         private readonly List<Delegate> _handlers = new();
+        private readonly List<Delegate> _asyncHandlers = new();
 
         /// <summary>
         /// Constructor that initializes the event and provides an event handler to invoke it.
@@ -39,28 +40,41 @@ namespace NUnit.Framework.Internal.HookExtensions
         /// Adds an asynchronous handler to the event.
         /// </summary>
         /// <param name="asyncHandler">The event handler to be attached to the event.</param>
-        public void AddHandler(AsyncEventHandler<TEventArgs> asyncHandler)
+        public void AddAsyncHandler(AsyncEventHandler<TEventArgs> asyncHandler)
         {
-            lock (_handlers)
-                _handlers.Add(asyncHandler);
+            lock (_asyncHandlers)
+                _asyncHandlers.Add(asyncHandler);
         }
-
-        // H-ToDo: Add new API AddAsyncHandler.
 
         private Task Invoke(object? sender, TEventArgs e)
         {
-            if (!_handlers.Any())
+            if (!_handlers.Any() && !_asyncHandlers.Any())
             {
                 return Task.CompletedTask;
             }
 
-            Delegate[] handlers;
+            var tasks = new List<Task>();
+
+            Delegate[] asyncHandlers;
+            lock (_asyncHandlers)
+                asyncHandlers = _asyncHandlers.ToArray();
+
+            foreach (var handler in asyncHandlers)
+            {
+                if (handler is AsyncEventHandler<TEventArgs> asyncHandler)
+                {
+                    tasks.Add(Task.Run(async () =>
+                    {
+                        await asyncHandler(sender, e);
+                    }));
+                }
+            }
+            
+            Delegate[] syncHandlers;
             lock (_handlers)
-                handlers = _handlers.ToArray();
+                syncHandlers = _handlers.ToArray();
 
-            var tasks = new List<Task>(handlers.Length);
-
-            foreach (var handler in handlers)
+            foreach (var handler in syncHandlers)
             {
                 if (handler is EventHandler<TEventArgs> syncHandler)
                 {
@@ -72,13 +86,6 @@ namespace NUnit.Framework.Internal.HookExtensions
                     {
                         tasks.Add(Task.FromException(ex));
                     }
-                }
-                else if (handler is AsyncEventHandler<TEventArgs> asyncHandler)
-                {
-                    tasks.Add(Task.Run(async () =>
-                    {
-                        await asyncHandler(sender, e);
-                    }));
                 }
             }
 

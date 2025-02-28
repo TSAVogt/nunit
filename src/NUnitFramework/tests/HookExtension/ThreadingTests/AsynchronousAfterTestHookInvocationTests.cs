@@ -16,7 +16,7 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
     {
         public virtual void ApplyToContext(TestExecutionContext context)
         {
-            context?.HookExtension?.AfterTest.AddHandler(async (sender, eventArgs) =>
+            context?.HookExtension?.AfterTest.AddAsyncHandler(async (sender, eventArgs) =>
             {
                 TestExecutionContext.CurrentContext
                                     .CurrentTest.Properties
@@ -25,7 +25,7 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
                 await Task.Delay(1);
             });
 
-            context?.HookExtension?.AfterTest.AddHandler(async (sender, eventArgs) =>
+            context?.HookExtension?.AfterTest.AddAsyncHandler(async (sender, eventArgs) =>
             {
                 TestExecutionContext.CurrentContext
                                     .CurrentTest.Properties

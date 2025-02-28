@@ -15,7 +15,7 @@ namespace NUnit.Framework.Tests.HookExtension.CommonAttributes
                 TestLog.LogCurrentMethod(HookIdentifiers.BeforeTestHook);
             });
 
-            context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
+            context?.HookExtension?.BeforeTest.AddAsyncHandler(async (sender, eventArgs) =>
             {
                 ThreadUtility.BlockingDelay(100);
                 TestLog.LogCurrentMethod(HookIdentifiers.BeforeTestHook);

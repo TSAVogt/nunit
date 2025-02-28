@@ -18,7 +18,7 @@ namespace NUnit.Framework.Tests.HookExtension.CommonAttributes
                 throw new Exception("After test hook crashed");
             });
 
-            context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
+            context?.HookExtension?.BeforeTest.AddAsyncHandler(async (sender, eventArgs) =>
             {
                 TestLog.LogCurrentMethod(HookIdentifiers.BeforeTestHook);
                 await Task.Delay(100);
