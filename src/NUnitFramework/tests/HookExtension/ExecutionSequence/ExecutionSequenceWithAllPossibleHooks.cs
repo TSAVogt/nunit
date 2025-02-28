@@ -1,47 +1,10 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
-using NUnit.Framework.Interfaces;
-using NUnit.Framework.Internal;
+using NUnit.Framework.Tests.HookExtension.CommonAttributes;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
 {
-    internal class ActivateAllPossibleTestHooks : NUnitAttribute, IApplyToContext
-    {
-        public virtual void ApplyToContext(TestExecutionContext context)
-        {
-            context?.HookExtension?.BeforeAnySetUps.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("BeforeAnySetUps_TestHook");
-            });
-            
-            context?.HookExtension?.AfterAnySetUps.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("AfterAnySetUps_TestHook");
-            });
-            
-            context?.HookExtension?.BeforeTest.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("BeforeTest_TestHook");
-            });
-            
-            context?.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("AfterTest_TestHook");
-            });
-            
-            context?.HookExtension?.BeforeAnyTearDowns.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("BeforeAnyTearDowns_TestHook");
-            });
-            
-            context?.HookExtension?.AfterAnyTearDowns.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("AfterAnyTearDowns_TestHook");
-            });
-        }
-    }
-
     internal class ExecutionSequenceWithAllPossibleHooks
     {
         [TestSetupUnderTest]
@@ -59,7 +22,8 @@ namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
                 TestLog.LogCurrentMethod();
             }
 
-            [Test, ActivateAllPossibleTestHooks]
+            [Test]
+            [ActivateAllSynchronousTestHooks]
             public void TestPasses()
             {
                 TestLog.LogCurrentMethod();
@@ -85,21 +49,21 @@ namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
             var testResult = TestsUnderTest.Execute();
 
             Assert.That(testResult.Logs, Is.EqualTo([
-                "OneTimeSetUp",
-
-                "BeforeAnySetUps_TestHook", 
-                "Setup", 
-                "AfterAnySetUps_TestHook", 
+                nameof(TestUnderTest.OneTimeSetUp),
                 
-                "BeforeTest_TestHook", 
-                "TestPasses", 
-                "AfterTest_TestHook", 
-                
-                "BeforeAnyTearDowns_TestHook", 
-                "TearDown", 
-                "AfterAnyTearDowns_TestHook",
+                HookIdentifiers.BeforeAnySetUpsHook,
+                nameof(TestUnderTest.Setup),
+                HookIdentifiers.AfterAnySetUpsHook,
 
-                "OneTimeTearDown"
+                HookIdentifiers.BeforeTestHook,
+                nameof(TestUnderTest.TestPasses),
+                HookIdentifiers.AfterTestHook,
+
+                HookIdentifiers.BeforeAnyTearDownsHook,
+                nameof(TestUnderTest.TearDown),
+                HookIdentifiers.AfterAnyTearDownsHook,
+
+                nameof(TestUnderTest.OneTimeTearDown)
             ]));
         }
     }

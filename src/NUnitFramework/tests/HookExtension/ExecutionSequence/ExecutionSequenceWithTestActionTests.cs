@@ -1,41 +1,12 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
 using System;
-using System.Threading.Tasks;
 using NUnit.Framework.Interfaces;
-using NUnit.Framework.Internal;
+using NUnit.Framework.Tests.HookExtension.CommonAttributes;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
 {
-    internal class ActivateMultipleTestHooks : NUnitAttribute, IApplyToContext
-    {
-        public virtual void ApplyToContext(TestExecutionContext context)
-        {
-            context?.HookExtension?.BeforeTest.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("BeforeTest_Hook");
-            });
-
-            context?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
-            {
-                await Task.Delay(100);
-                TestLog.LogCurrentMethod("BeforeTest_Hook");
-            });
-
-            context?.HookExtension?.AfterTest.AddHandler((sender, eventArgs) =>
-            {
-                TestLog.LogCurrentMethod("AfterTest_Hook");
-            });
-
-            context?.HookExtension?.AfterTest.AddHandler(async (sender, eventArgs) =>
-            {
-                await Task.Delay(100);
-                TestLog.LogCurrentMethod("AfterTest_Hook");
-            });
-        }
-    }
-
     [AttributeUsage(AttributeTargets.Class)]
     public class SomeTestActionAttribute : Attribute, ITestAction
     {
@@ -58,7 +29,9 @@ namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
         [SomeTestAction]
         public class TestUnderTest
         {
-            [Test, ActivateMultipleTestHooks]
+            [Test]
+            [ActivateBeforeTestHooks]
+            [ActivateAfterTestHooks]
             public void TestPasses()
             {
                 TestLog.LogCurrentMethod();
@@ -86,17 +59,17 @@ namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
             Assert.That(testResult.Logs, Is.EqualTo([
                 "BeforeTest_Action",
                 
-                "BeforeTest_Hook",
-                "BeforeTest_Hook",
+                HookIdentifiers.BeforeTestHook,
+                HookIdentifiers.BeforeTestHook,
                 
-                "TestPasses",
+                nameof(TestUnderTest.TestPasses),
 
-                "AfterTest_Hook",
-                "AfterTest_Hook",
+                HookIdentifiers.AfterTestHook,
+                HookIdentifiers.AfterTestHook,
 
-                "TearDown",
+                nameof(TestUnderTest.TearDown),
                 "AfterTest_Action",
-                "OneTimeTearDown"
+                nameof(TestUnderTest.OneTimeTearDown)
             ]));
         }
     }
