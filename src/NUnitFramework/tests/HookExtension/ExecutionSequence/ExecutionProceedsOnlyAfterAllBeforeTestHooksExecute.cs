@@ -1,6 +1,6 @@
 // Copyright (c) Charlie Poole, Rob Prouse and Contributors. MIT License - see LICENSE.txt
 
-using NUnit.Framework.Internal;
+using NUnit.Framework.Tests.HookExtension.CommonAttributes;
 using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence;
@@ -10,24 +10,9 @@ public class ExecutionProceedsOnlyAfterAllBeforeTestHooksExecute
     [TestSetupUnderTest]
     public class TestUnderTest
     {
-        [OneTimeSetUp]
-        public void RegisterLongRunningBeforeTestHooks()
-        {
-            TestExecutionContext.CurrentContext?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
-            {
-                // Delay to ensure that handlers run longer than the test case
-                await System.Threading.Tasks.Task.Delay(1000);
-                TestLog.LogCurrentMethod();
-            });
-            TestExecutionContext.CurrentContext?.HookExtension?.BeforeTest.AddHandler(async (sender, eventArgs) =>
-            {
-                // Delay to ensure that handlers run longer than the test case
-                await System.Threading.Tasks.Task.Delay(1000);
-                TestLog.LogCurrentMethod();
-            });
-        }
-
         [Test]
+        [ActivateBeforeTestHooks]
+        [ActivateLongRunningBeforeTestHooks]
         public void SomeTest()
         {
             TestLog.LogCurrentMethod();
@@ -41,12 +26,11 @@ public class ExecutionProceedsOnlyAfterAllBeforeTestHooksExecute
         var testResult = TestsUnderTest.Execute();
 
         Assert.That(testResult.Logs, Is.EqualTo([
-            nameof(TestUnderTest.RegisterLongRunningBeforeTestHooks),
-            nameof(TestUnderTest.RegisterLongRunningBeforeTestHooks),
+            HookIdentifiers.BeforeTestHook,
+            HookIdentifiers.BeforeTestHook,
+            HookIdentifiers.BeforeTestHook,
+            HookIdentifiers.BeforeTestHook,
             nameof(TestUnderTest.SomeTest)
         ]));
     }
-
-    // H-ToDo: Use Repeat(1000)
-    // H-ToDo: Create similar test for After test hook
 }
