@@ -5,7 +5,7 @@ using NUnit.Framework.Tests.TestUtilities.TestsUnderTest;
 
 namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
 {
-    internal class ExecutionProceedsOnlyAfterAllAfterAfterTestHooksExecute
+    internal class ExecutionProceedsOnlyAfterAllAfterTestHooksExecute
     {
         [TestSetupUnderTest]
         public class TestUnderTest
