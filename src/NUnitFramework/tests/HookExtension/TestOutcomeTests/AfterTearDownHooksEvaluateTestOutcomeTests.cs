@@ -70,7 +70,6 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
     // H-TODO: enrich the test to also failing tests and setups
 
     [TestSetupUnderTest]
-    [NonParallelizable]
     [AfterTearDownOutcomeLogger]
     [TestFixtureSource(nameof(GetFixtureConfig))]
     public class TestsUnderTestsWithDifferentTearDownOutcome
@@ -137,7 +136,7 @@ public class AfterTearDownHooksEvaluateTestOutcomeTests
     }
 
     [Test]
-    [NonParallelizable]
+    
     public void CheckTearDownOutcomes()
     {
         var testResult = TestsUnderTest.Execute();

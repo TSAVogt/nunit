@@ -79,7 +79,6 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
         }
 
         [Test]
-        [NonParallelizable]
         [Explicit("Thread IDs is not a good way to test. Are we testing dot net framework here??")]
         public void AsynchronousHookInvocation_HookExecutesInSeparateThreads()
         {

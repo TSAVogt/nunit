@@ -77,7 +77,6 @@ public class AfterOneTimeOneTimeTearDownHooksEvaluateTestOutcomeTests
     // H-TODO: enrich or write new test for exceptions from hooks
 
     [TestSetupUnderTest]
-    [NonParallelizable]
     [AfterOneTimeTearDownOutcomeLogger]
     [TestFixtureSource(nameof(GetFixtureConfig))]
     public class TestsUnderTestsWithDifferentOneTimeTearDownOutcome
@@ -145,7 +144,7 @@ public class AfterOneTimeOneTimeTearDownHooksEvaluateTestOutcomeTests
     }
 
     [Test]
-    [NonParallelizable]
+    
     public void CheckOneTimeTearDownOutcomes()
     {
         var testResult = TestsUnderTest.Execute();

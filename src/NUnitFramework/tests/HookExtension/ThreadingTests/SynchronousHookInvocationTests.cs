@@ -63,7 +63,6 @@ namespace NUnit.Framework.Tests.HookExtension.ThreadingTests
         }
 
         [Test]
-        [NonParallelizable]
         public void SynchronousHookInvocation_HookExecutesInSameThreadAsTest()
         {
             var testResult = TestsUnderTest.Execute();

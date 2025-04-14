@@ -20,7 +20,6 @@ public class ExecutionProceedsOnlyAfterAllBeforeTestHooksExecute
     }
 
     [Test]
-    [NonParallelizable]
     public void CheckThatLongRunningBeforeTestHooksCompleteBeforeTest()
     {
         var testResult = TestsUnderTest.Execute();

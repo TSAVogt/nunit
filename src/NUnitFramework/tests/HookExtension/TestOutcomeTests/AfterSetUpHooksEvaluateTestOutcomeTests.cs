@@ -72,7 +72,6 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
     }
 
     [TestSetupUnderTest]
-    [NonParallelizable]
     [AfterSetUpOutcomeLogger]
     [TestFixtureSource(nameof(GetFixtureConfig))]
     public class TestsUnderTestsWithDifferentSetUpOutcome
@@ -146,7 +145,7 @@ public class AfterSetUpHooksEvaluateTestOutcomeTests
     }
 
     [Test]
-    [NonParallelizable]
+    
     public void CheckSetUpOutcomes()
     {
         var testResult = TestsUnderTest.Execute();

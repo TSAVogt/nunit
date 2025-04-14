@@ -23,7 +23,6 @@ namespace NUnit.Framework.Tests.HookExtension
         }
 
         [Test]
-        [NonParallelizable]
         public void CheckLoggingTest()
         {
             var testResult = TestsUnderTest.Execute();

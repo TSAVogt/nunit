@@ -47,7 +47,6 @@ public class AfterTestOutcomeLogger : NUnitAttribute, IApplyToContext
 public class AfterTestHooksEvaluateTestOutcomeTests
 {
     [TestSetupUnderTest]
-    [NonParallelizable]
     [AfterTestOutcomeLogger]
     public class TestsUnderTestsWithMixedOutcome
     {
@@ -89,7 +88,7 @@ public class AfterTestHooksEvaluateTestOutcomeTests
     }
 
     [Test]
-    [NonParallelizable]
+    
     public void CheckThatAfterTestHooksEvaluateTestOutcome()
     {
         var testResult = TestsUnderTest.Execute();

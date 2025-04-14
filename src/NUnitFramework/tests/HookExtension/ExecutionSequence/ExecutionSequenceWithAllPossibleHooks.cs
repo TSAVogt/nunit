@@ -43,7 +43,6 @@ namespace NUnit.Framework.Tests.HookExtension.ExecutionSequence
         }
 
         [Test]
-        [NonParallelizable]
         public void TestProceedsAfterAllAfterTestHooksExecute()
         {
             var testResult = TestsUnderTest.Execute();
