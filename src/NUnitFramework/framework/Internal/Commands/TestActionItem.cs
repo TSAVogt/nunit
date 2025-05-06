@@ -76,7 +76,7 @@ namespace NUnit.Framework.Internal.Commands
             catch (Exception exception)
             {
                 // H-TODO: add test for exception handling
-                context.HookExtension?.OnAfterTestActionAfterTest(context, hookedMethodInfo);
+                context.HookExtension?.OnAfterTestActionAfterTest(context, hookedMethodInfo, exception);
                 throw;
             }
             context.HookExtension?.OnAfterTestActionAfterTest(context, hookedMethodInfo);
